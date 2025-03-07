@@ -15,6 +15,15 @@ namespace Auto1040.Core.Entities
         public int UserId { get; set; }
         public User? User { get; set; }
 
+
+        [Required]
+        [MaxLength(50)]
+        public string? FirstName { get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        public string? LastName { get; set; }
+
         [Required]
         [MaxLength(20)]
         public string Ssn { get; set; }

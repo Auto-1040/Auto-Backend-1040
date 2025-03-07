@@ -12,12 +12,7 @@ namespace Auto1040.Core.Entities
         public int Id { get; set; }
 
         [Required]
-        [MaxLength(50)]
-        public string? FirstName { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public string? LastName { get; set; }
+        public string UserName { get; set; }
 
         [Required]
         [MaxLength(100)]

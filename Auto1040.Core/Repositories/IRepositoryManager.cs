@@ -10,6 +10,7 @@ namespace Auto1040.Core.Repositories
     public interface IRepositoryManager
     {
         public IUserRepository Users { get; }
+        public IUserDetailsRepository UserDetails { get; }
         void Save();
 
     }
