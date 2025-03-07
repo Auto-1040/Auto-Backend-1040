@@ -8,11 +8,11 @@ using System.Threading.Tasks;
 
 namespace Auto1040.Data.Repositories
 {
-    public class UserRepository: Repository<User>, IUserRepository
+    public class UserDetailsRepository:Repository<UserDetails>,IUserDetailsRepository
     {
-        public UserRepository(DataContext dataContext):base(dataContext)
+        public UserDetailsRepository(DataContext dataContext) : base(dataContext)
         {
-            
+
         }
     }
 }
