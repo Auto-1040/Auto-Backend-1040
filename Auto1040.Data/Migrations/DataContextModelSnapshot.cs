@@ -38,23 +38,17 @@ namespace Auto1040.Data.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
                     b.Property<string>("HashedPassword")
                         .IsRequired()
                         .HasMaxLength(256)
                         .HasColumnType("varchar(256)");
 
-                    b.Property<string>("LastName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.HasKey("Id");
 
@@ -80,6 +74,11 @@ namespace Auto1040.Data.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
+                    b.Property<string>("FirstName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
+
                     b.Property<string>("ForeignCountry")
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
@@ -95,6 +94,11 @@ namespace Auto1040.Data.Migrations
                     b.Property<string>("HomeAddress")
                         .HasMaxLength(255)
                         .HasColumnType("varchar(255)");
+
+                    b.Property<string>("LastName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("varchar(50)");
 
                     b.Property<bool>("PresidentialCampaign")
                         .HasColumnType("tinyint(1)");
