@@ -1,44 +1,84 @@
-﻿
-
-using Leyadech.Core.Entities;
-using Leyadech.Core.Repositories;
+﻿using Auto1040.Core.DTOs;
+using Auto1040.Core.Entities;
+using Auto1040.Core.Repositories;
+using Auto1040.Core.Services;
+using AutoMapper;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Auto1040.Service
 {
-    class UserService(IRepository<User> userRepository)
+    public class UserService(IRepositoryManager repositoryManager, IMapper mapper) : IUserService
     {
-        private readonly IRepository<User> _userRepository = userRepository;
+        private readonly IRepositoryManager _repositoryManager = repositoryManager;
+        private readonly IMapper _mapper= mapper;
 
-        public User? CreateUser(User user)
+
+        public Result<IEnumerable<UserDto>> GetAllUsers()
         {
+            var result = _mapper.Map<List<UserDto>>(_repositoryManager.Users.GetList());
+            return Result<IEnumerable<UserDto>>.Success(result);
+        }
+
+        public Result<UserDto> GetUserById(int id)
+        {
+            var user = _repositoryManager.Users.GetById(id);
             if (user == null)
-                throw new ArgumentNullException(nameof(user));
-
-            return _userRepository.Add(user);
+                return Result<UserDto>.NotFound("User not found");
+            return Result<UserDto>.Success(_mapper.Map<UserDto>(user));
         }
 
-        public bool DeleteUser(int id)
+        public Result<bool> AddUser(UserDto userDto)
         {
-            return _userRepository.Delete(id);
-        }
-
-        public User? UpdateUser(int id, User user)
-        {
+            var user = _mapper.Map<User>(userDto);
             if (user == null)
-                throw new ArgumentNullException(nameof(user));
+                return Result<bool>.BadRequest("Cannot add user of null reference");
 
-            return _userRepository.Update(id, user);
+            if (_repositoryManager.Users.GetList().Any(u => u.Email == user.Email))
+                return Result<bool>.BadRequest("A user with this email already exists.");
+            //to do: check validation
+            user.CreatedAt = DateTime.UtcNow;
+            user.UpdatedAt = DateTime.UtcNow;
+
+            var result = _repositoryManager.Users.Add(user);
+            if (result == null)
+                return Result<bool>.Failure("Failed to add user");
+
+            _repositoryManager.Save();
+            return Result<bool>.Success(true);
         }
 
-        public User? GetUserById(int id)
+        public Result<bool> UpdateUser(int id, UserDto userDto)
         {
-            return _userRepository.GetById(id);
+            var user = _mapper.Map<User>(userDto);
+            if (user == null)
+                return Result<bool>.BadRequest("Cannot update user to null reference");
+            //to do: check validation
+            if (_repositoryManager.Users.GetById(id) == null)
+                return Result<bool>.NotFound($"Id {id} is not found");
+
+            user.UpdatedAt = DateTime.UtcNow;
+
+            var result = _repositoryManager.Users.Update(id, user);
+            if (result == null)
+                return Result<bool>.Failure("Failed to update user");
+
+            _repositoryManager.Save();
+            return Result<bool>.Success(true);
         }
 
-        public IEnumerable<User> GetAllUsers()
+        public Result<bool> DeleteUser(int id)
         {
+            if (_repositoryManager.Users.GetById(id) == null)
+                return Result<bool>.NotFound($"Id {id} is not found");
 
-            return _userRepository.GetList();
+            var result = _repositoryManager.Users.Delete(id);
+            if (!result)
+                return Result<bool>.Failure("Failed to delete user");
+
+            _repositoryManager.Save();
+            return Result<bool>.Success(result);
         }
     }
 }

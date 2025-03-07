@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using static System.Net.Mime.MediaTypeNames;
 
-namespace Leyadech.Core.Entities
+namespace Auto1040.Core.Entities
 {
     [Table("User")]
     public class User
@@ -14,11 +13,11 @@ namespace Leyadech.Core.Entities
 
         [Required]
         [MaxLength(50)]
-        public string FirstName { get; set; }
+        public string? FirstName { get; set; }
 
         [Required]
         [MaxLength(50)]
-        public string LastName { get; set; }
+        public string? LastName { get; set; }
 
         [Required]
         [MaxLength(100)]
@@ -26,11 +25,14 @@ namespace Leyadech.Core.Entities
         public string Email { get; set; }
 
         [Required]
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        [MaxLength(256)]
+        public string HashedPassword { get; set; }
 
+        [Required]
+        public DateTime CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        public DateTime UpdatedAt { get; set; }
 
-
+        public UserDetails? UserDetails { get; set; }
     }
 }

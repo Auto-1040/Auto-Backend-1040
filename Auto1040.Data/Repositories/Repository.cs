@@ -1,6 +1,6 @@
 ﻿
 
-using Leyadech.Core.Repositories;
+using Auto1040.Core.Repositories;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;

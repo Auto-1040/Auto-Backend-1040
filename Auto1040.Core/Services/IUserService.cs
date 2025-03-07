@@ -1,12 +1,14 @@
-﻿using System;
+﻿using Auto1040.Core.DTOs;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Auto1040.Core.Services
 {
-    class IUserService
+    public interface IUserService
     {
+        Result<IEnumerable<UserDto>> GetAllUsers();
+        Result<UserDto> GetUserById(int id);
+        Result<bool> AddUser(UserDto userDto);
+        Result<bool> UpdateUser(int id, UserDto userDto);
+        Result<bool> DeleteUser(int id);
     }
 }

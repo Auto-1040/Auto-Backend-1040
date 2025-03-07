@@ -1,83 +1,81 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Auto1040.Api.PostModels;
+using Auto1040.Core.DTOs;
+using Auto1040.Core.Services;
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace Auto1040.Api.Controllers
 {
-    public class UserController : Controller
+    [ApiController]
+    [Route("api/[controller]")]
+    public class UserController : ControllerBase
     {
-        // GET: UserController
-        public ActionResult Index()
+        private readonly IUserService _userService;
+        private readonly IMapper _mapper;
+
+        public UserController(IUserService userService, IMapper mapper)
         {
-            return View();
+            _userService = userService;
+            _mapper = mapper;
         }
 
-        // GET: UserController/Details/5
-        public ActionResult Details(int id)
+        [HttpGet]
+        public ActionResult<IEnumerable<UserDto>> Get()
         {
-            return View();
+            var result = _userService.GetAllUsers();
+            if (!result.IsSuccess)
+                return StatusCode(result.StatusCode, result.ErrorMessage);
+
+            return Ok(result.Data);
         }
 
-        // GET: UserController/Create
-        public ActionResult Create()
+        [HttpGet("{id}")]
+        public ActionResult<UserDto> Get(int id)
         {
-            return View();
+            var result = _userService.GetUserById(id);
+            if (!result.IsSuccess)
+                return StatusCode(result.StatusCode, result.ErrorMessage);
+
+            return Ok(result.Data);
         }
 
-        // POST: UserController/Create
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create(IFormCollection collection)
+        public ActionResult<bool> Add([FromBody] UserPostModel user)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            if (user == null)
+                return BadRequest("User data is required.");
+
+            var userDto = _mapper.Map<UserDto>(user);
+            var result = _userService.AddUser(userDto);
+            if (!result.IsSuccess)
+                return StatusCode(result.StatusCode, result.ErrorMessage);
+
+            return Ok(result.Data);
         }
 
-        // GET: UserController/Edit/5
-        public ActionResult Edit(int id)
+        [HttpPut("{id}")]
+        public ActionResult<bool> Update(int id, [FromBody] UserPostModel user)
         {
-            return View();
+            if (user == null)
+                return BadRequest("User data is required.");
+
+            var userDto = _mapper.Map<UserDto>(user);
+            var result = _userService.UpdateUser(id, userDto);
+            if (!result.IsSuccess)
+                return StatusCode(result.StatusCode, result.ErrorMessage);
+
+            return NoContent();
         }
 
-        // POST: UserController/Edit/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Edit(int id, IFormCollection collection)
+        [HttpDelete("{id}")]
+        public ActionResult<bool> Delete(int id)
         {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
-        }
+            var result = _userService.DeleteUser(id);
+            if (!result.IsSuccess)
+                return StatusCode(result.StatusCode, result.ErrorMessage);
 
-        // GET: UserController/Delete/5
-        public ActionResult Delete(int id)
-        {
-            return View();
-        }
-
-        // POST: UserController/Delete/5
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Delete(int id, IFormCollection collection)
-        {
-            try
-            {
-                return RedirectToAction(nameof(Index));
-            }
-            catch
-            {
-                return View();
-            }
+            return NoContent();
         }
     }
 }
