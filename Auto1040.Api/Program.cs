@@ -1,4 +1,5 @@
 using Auto1040.Api;
+using Auto1040.Api.Extensions;
 using Auto1040.Core;
 using Auto1040.Core.Repositories;
 using Auto1040.Core.Services;
@@ -22,19 +23,12 @@ builder.Services.AddDbContext<DataContext>(options =>
     )
 );
 
-builder.Services.AddAutoMapper(typeof(MappingProfile),typeof(MappingPostProfile));
+builder.Services.AddDependencyInjectoions();
 
-// Register repositories
-builder.Services.AddScoped<IRepositoryManager, RepositoryManager>();
-builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IUserDetailsRepository, UserDetailsRepository>();
+builder.Services.AddSwagger();
 
-// Register services
-builder.Services.AddScoped<IUserService, UserService>();
-
-// Add Swagger services
-builder.Services.AddSwaggerGen();
+builder.AddJwtAuthentication();
+builder.AddJwtAuthorization();
 
 var app = builder.Build();
 

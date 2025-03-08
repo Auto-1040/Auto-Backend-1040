@@ -1,0 +1,14 @@
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace Auto1040.Core.Entities
+{
+    [Table("RolePermissions")]
+    public class RolePermission
+    {
+        public int RoleId { get; set; }
+        public Role Role { get; set; }
+
+        public int PermissionId { get; set; }
+        public Permission Permission { get; set; }
+    }
+}

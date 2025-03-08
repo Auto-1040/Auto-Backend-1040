@@ -1,9 +1,8 @@
 ﻿using Auto1040.Api.PostModels;
 using Auto1040.Core.DTOs;
-using Auto1040.Core.Services;
+using Auto1040.Core.Entities;
 using AutoMapper;
-using System.Security.Cryptography;
-using System.Text;
+using BCrypt.Net;
 
 namespace Auto1040.Api
 {
@@ -12,22 +11,8 @@ namespace Auto1040.Api
         public MappingPostProfile()
         {
             CreateMap<UserPostModel, UserDto>()
-                .ForMember(dest => dest.HashedPassword, opt=>opt.MapFrom(src=>HashPassword(src.Password)));
+                .ForMember(dest => dest.HashedPassword, opt => opt.MapFrom(src => BCrypt.Net.BCrypt.HashPassword(src.Password)));
             CreateMap<UserDetailsPostModel, UserDetailsDto>();
         }
-
-
-        public string HashPassword(string password)
-        {
-            using (var sha256 = SHA256.Create())
-            {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(password));
-                return BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
-            }
-        }
     }
-
-
-    
 }
-
