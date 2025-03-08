@@ -29,5 +29,8 @@ namespace Auto1040.Core.Entities
         public DateTime UpdatedAt { get; set; }
 
         public UserDetails? UserDetails { get; set; }
+
+        public ICollection<UserRole>? UserRoles { get; set; }
+
     }
 }

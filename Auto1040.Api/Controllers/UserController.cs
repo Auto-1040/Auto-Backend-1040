@@ -2,6 +2,7 @@
 using Auto1040.Core.DTOs;
 using Auto1040.Core.Services;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
@@ -9,6 +10,7 @@ namespace Auto1040.Api.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Policy ="AdminOnly")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
