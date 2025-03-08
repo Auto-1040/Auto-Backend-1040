@@ -42,7 +42,7 @@ namespace Auto1040.Api.Controllers
         {
             var userId = GetUserId();
             if (!_userDetailsService.IsUserDetailsOwner(id, userId))
-                return Forbid("You are not authorized to access these details.");
+                return Forbid();
 
             var result = _userDetailsService.GetUserDetailsById(id);
             if (!result.IsSuccess)
@@ -60,7 +60,7 @@ namespace Auto1040.Api.Controllers
 
             var userId = GetUserId();
             if (userDetails.UserId != userId)
-                return Forbid("You are not authorized to add these details.");
+                return Forbid();
 
             var userDetailsDto = _mapper.Map<UserDetailsDto>(userDetails);
             var result = _userDetailsService.AddUserDetails(userDetailsDto);
@@ -79,7 +79,7 @@ namespace Auto1040.Api.Controllers
 
             var userId = GetUserId();
             if (!_userDetailsService.IsUserDetailsOwner(id, userId))
-                return Forbid("You are not authorized to update these details.");
+                return Forbid();
 
             var userDetailsDto = _mapper.Map<UserDetailsDto>(userDetails);
             var result = _userDetailsService.UpdateUserDetails(id, userDetailsDto);
@@ -95,7 +95,7 @@ namespace Auto1040.Api.Controllers
         {
             var userId = GetUserId();
             if (!_userDetailsService.IsUserDetailsOwner(id, userId))
-                return Forbid("You are not authorized to delete these details.");
+                return Forbid();
 
             var result = _userDetailsService.DeleteUserDetails(id);
             if (!result.IsSuccess)
@@ -106,7 +106,10 @@ namespace Auto1040.Api.Controllers
 
         private int GetUserId()
         {
-            return int.Parse(User.FindFirstValue(JwtRegisteredClaimNames.Sub));
+            var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            return int.Parse(userIdClaim);
         }
+
+
     }
 }
