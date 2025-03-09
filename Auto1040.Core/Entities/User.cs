@@ -30,7 +30,7 @@ namespace Auto1040.Core.Entities
 
         public UserDetails? UserDetails { get; set; }
 
-        public ICollection<UserRole>? UserRoles { get; set; }
+        public ICollection<Role>? Roles { get; set; }
 
         public ICollection<PaySlip>? PaySlips { get; set; }
 

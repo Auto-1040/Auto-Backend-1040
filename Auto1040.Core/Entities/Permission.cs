@@ -16,6 +16,6 @@ namespace Auto1040.Core.Entities
 
         public string Description { get; set; }
 
-        public ICollection<RolePermission> RolePermissions { get; set; }
+        public ICollection<Role>? Roles { get; set; }
     }
 }

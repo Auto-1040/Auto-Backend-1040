@@ -32,7 +32,7 @@ namespace Auto1040.Service
             };
 
             // Add roles as claims
-            foreach (var role in user.UserRoles.Select(ur => ur.Role.RoleName))
+            foreach (var role in user.Roles.Select(r => r.RoleName))
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
             }
@@ -55,7 +55,7 @@ namespace Auto1040.Service
 
             if (user != null && BCrypt.Net.BCrypt.Verify(password, user.HashedPassword))
             {
-                roles = user.UserRoles.Select(ur => ur.Role.RoleName).ToArray();
+                roles = user.Roles.Select(r => r.RoleName).ToArray();
                 return true;
             }
 
