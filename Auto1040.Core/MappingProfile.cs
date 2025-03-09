@@ -1,22 +1,14 @@
 ﻿using Auto1040.Core.DTOs;
 using Auto1040.Core.Entities;
 using AutoMapper;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Auto1040.Core
+public class MappingProfile : Profile
 {
-    public class MappingProfile:Profile
+    public MappingProfile()
     {
-        public MappingProfile()
-        {
-            CreateMap<UserDto, User>().ReverseMap();
-            CreateMap<UserDetailsDto, UserDetails>().ReverseMap();
-            CreateMap<PaySlip, PaySlipDto>().ReverseMap();
-
-        }
+        CreateMap<User, UserDto>().ReverseMap();
+        CreateMap<UserDetails, UserDetailsDto>().ReverseMap();
+        CreateMap<PaySlip, PaySlipDto>().ReverseMap();
+        CreateMap<OutputForm, OutputFormDto>().ReverseMap();
     }
 }

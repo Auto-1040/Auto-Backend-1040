@@ -2,8 +2,10 @@
 
 public interface IRepositoryManager
 {
-    IUserRepository Users { get; }
-    IUserDetailsRepository UserDetails { get; }
-    IPaySlipRepository PaySlips { get; }
+    public IUserRepository Users { get; }
+    public IUserDetailsRepository UserDetails { get; }
+    public IPaySlipRepository PaySlips { get; }
+    public IOutputFormRepository OutputForms { get; }
+
     void Save();
 }

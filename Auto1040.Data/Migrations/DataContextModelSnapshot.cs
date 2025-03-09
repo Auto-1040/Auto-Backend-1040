@@ -22,6 +22,94 @@ namespace Auto1040.Data.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("Auto1040.Core.Entities.OutputForm", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("FilePath")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("varchar(255)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("S3Key")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Year")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("OutputForm");
+                });
+
+            modelBuilder.Entity("Auto1040.Core.Entities.PaySlip", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("CapitalGains")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("EmployerAdoptionBenefits")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("HouseholdWages")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("OtherEarnedIncome")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("TaxableDependentBenefits")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("TipIncome")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("TotalDividends")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("TotalExemptIncome")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("TotalIncome")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<decimal>("TotalTaxableIncome")
+                        .HasColumnType("decimal(65,30)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PaySlipData");
+                });
+
             modelBuilder.Entity("Auto1040.Core.Entities.Permission", b =>
                 {
                     b.Property<int>("Id")
@@ -218,6 +306,28 @@ namespace Auto1040.Data.Migrations
                     b.ToTable("UserRoles");
                 });
 
+            modelBuilder.Entity("Auto1040.Core.Entities.OutputForm", b =>
+                {
+                    b.HasOne("Auto1040.Core.Entities.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Auto1040.Core.Entities.PaySlip", b =>
+                {
+                    b.HasOne("Auto1040.Core.Entities.User", "User")
+                        .WithMany("PaySlips")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Auto1040.Core.Entities.RolePermission", b =>
                 {
                     b.HasOne("Auto1040.Core.Entities.Permission", "Permission")
@@ -281,6 +391,8 @@ namespace Auto1040.Data.Migrations
 
             modelBuilder.Entity("Auto1040.Core.Entities.User", b =>
                 {
+                    b.Navigation("PaySlips");
+
                     b.Navigation("UserDetails");
 
                     b.Navigation("UserRoles");
