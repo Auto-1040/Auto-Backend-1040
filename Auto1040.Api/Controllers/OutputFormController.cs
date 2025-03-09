@@ -84,7 +84,7 @@ namespace Auto1040.Api.Controllers
             return NoContent();
         }
 
-        [HttpPatch("{id}/soft-delete")]
+        [HttpDelete("{id}/soft-delete")]
         [Authorize]
         public ActionResult<bool> SoftDelete(int id)
         {
