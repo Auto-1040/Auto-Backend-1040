@@ -14,6 +14,8 @@ namespace Auto1040.Data
         public DbSet<UserRole> UserRoles { get; set; }
         public DbSet<RolePermission> RolePermissions { get; set; }
         public DbSet<PaySlip> PaySlipData { get; set; }
+        public DbSet<OutputForm> OutputForms { get; set; }
+
 
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -14,6 +14,8 @@ namespace Auto1040.Api
                 .ForMember(dest => dest.HashedPassword, opt => opt.MapFrom(src => BCrypt.Net.BCrypt.HashPassword(src.Password)));
             CreateMap<UserDetailsPostModel, UserDetailsDto>();
             CreateMap<PaySlipPostModel, PaySlipDto>();
+            CreateMap<OutputFormPostModel, OutputFormDto>();
+
 
         }
     }
