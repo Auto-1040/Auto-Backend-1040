@@ -8,11 +8,12 @@ using System.Threading.Tasks;
 
 namespace Auto1040.Data.Repositories
 {
-    public class RepositoryManager(DataContext context,IUserRepository userRepository,IUserDetailsRepository userDetailsRepository):IRepositoryManager
+    public class RepositoryManager(DataContext context,IUserRepository userRepository,IUserDetailsRepository userDetailsRepository,IPaySlipRepository paySlipRepository):IRepositoryManager
     {
         private readonly DataContext _context=context;
         public IUserRepository Users { get; }= userRepository;
         public IUserDetailsRepository UserDetails { get; }=userDetailsRepository;
+        public IPaySlipRepository PaySlips { get; } = paySlipRepository;
         public void Save()
         {
             _context.SaveChanges();

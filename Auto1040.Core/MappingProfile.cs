@@ -15,6 +15,8 @@ namespace Auto1040.Core
         {
             CreateMap<UserDto, User>().ReverseMap();
             CreateMap<UserDetailsDto, UserDetails>().ReverseMap();
+            CreateMap<PaySlip, PaySlipDto>().ReverseMap();
+
         }
     }
 }

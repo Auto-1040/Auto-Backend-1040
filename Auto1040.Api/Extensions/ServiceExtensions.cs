@@ -20,12 +20,15 @@ namespace Auto1040.Api.Extensions
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IUserDetailsRepository, UserDetailsRepository>();
+            services.AddScoped<IPaySlipRepository, PaySlipRepository>();
 
             // Register services
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IUserDetailsService, UserDetailsService>();
             services.AddScoped<IAuthService, AuthService>();
+            services.AddScoped<IPaySlipService, PaySlipService>();
         }
+
 
     }
 }
