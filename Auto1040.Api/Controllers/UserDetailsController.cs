@@ -107,8 +107,13 @@ namespace Auto1040.Api.Controllers
         private int GetUserId()
         {
             var userIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userIdClaim))
+            {
+                throw new UnauthorizedAccessException("User ID claim is missing.");
+            }
             return int.Parse(userIdClaim);
         }
+
 
 
     }

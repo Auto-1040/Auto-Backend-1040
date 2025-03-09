@@ -32,5 +32,7 @@ namespace Auto1040.Core.Entities
 
         public ICollection<UserRole>? UserRoles { get; set; }
 
+        public ICollection<PaySlip>? PaySlips { get; set; }
+
     }
 }
