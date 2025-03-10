@@ -26,7 +26,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 builder.Services.AddDependencyInjectoions();
 
 builder.Services.AddSwagger();
-
+builder.Services.AddAllowAnyCors();
 builder.AddJwtAuthentication();
 builder.AddJwtAuthorization();
 
@@ -39,6 +39,10 @@ if (app.Environment.IsDevelopment()|| app.Environment.IsProduction())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(CorsExtension.MyAllowSpecificOrigins);
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
