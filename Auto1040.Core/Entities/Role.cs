@@ -22,8 +22,8 @@ namespace Auto1040.Core.Entities
 
         public DateTime UpdatedAt { get; set; }
 
-        ICollection<User>? Users { get; set; }
-        ICollection<Permission>? Permissions { get; set; }
+        public ICollection<User>? Users { get; set; }
+        public ICollection<Permission>? Permissions { get; set; }
 
     }
 }

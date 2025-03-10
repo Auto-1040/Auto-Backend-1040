@@ -31,6 +31,5 @@ namespace Auto1040.Api.Extensions
             services.AddScoped<IOutputFormService, OutputFormService>();
         }
 
-
     }
 }
