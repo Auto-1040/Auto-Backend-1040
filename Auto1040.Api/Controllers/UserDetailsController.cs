@@ -12,7 +12,7 @@ using System.Security.Claims;
 namespace Auto1040.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route("api/users/{userId}/details")]
     public class UserDetailsController : ControllerBase
     {
         private readonly IUserDetailsService _userDetailsService;
@@ -26,17 +26,6 @@ namespace Auto1040.Api.Controllers
 
 
         [HttpGet]
-        [Authorize(Policy = "AdminOnly")]
-        public ActionResult<IEnumerable<UserDetailsDto>> GetAll()
-        {
-            var result = _userDetailsService.GetAllUserDetails();
-            if (!result.IsSuccess)
-                return StatusCode(result.StatusCode, result.ErrorMessage);
-
-            return Ok(result.Data);
-        }
-
-        [HttpGet("{userId}")]
         [Authorize]
         public ActionResult<UserDetailsDto> GetByUserId(int userId)
         {
@@ -53,15 +42,15 @@ namespace Auto1040.Api.Controllers
 
         [HttpPost]
         [Authorize]
-        public ActionResult<bool> Add([FromBody] UserDetailsPostModel userDetails)
+        public ActionResult<bool> Add(int userId,[FromBody] UserDetailsPostModel userDetails)
         {
             if (userDetails == null)
                 return BadRequest("User details data is required.");
 
-            var userId = GetUserId();
-            if (userDetails.UserId != userId)
+            var authId = GetUserId();
+            if (!_userDetailsService.IsUserDetailsOwner(userId, authId))
                 return Forbid();
-
+            userDetails.UserId = userId;
             var userDetailsDto = _mapper.Map<UserDetailsDto>(userDetails);
             var result = _userDetailsService.AddUserDetails(userDetailsDto);
             if (!result.IsSuccess)
@@ -70,7 +59,7 @@ namespace Auto1040.Api.Controllers
             return Ok(result.Data);
         }
 
-        [HttpPut("{userId}")]
+        [HttpPut]
         [Authorize]
         public ActionResult<UserDetailsDto> UpdateByUserId(int userId, [FromBody] UserDetailsPostModel userDetails)
         {
@@ -89,7 +78,7 @@ namespace Auto1040.Api.Controllers
             return Ok(result.Data);
         }
 
-        [HttpDelete("{userId}")]
+        [HttpDelete]
         [Authorize]
         public ActionResult<bool> DeleteByUserId(int userId)
         {
