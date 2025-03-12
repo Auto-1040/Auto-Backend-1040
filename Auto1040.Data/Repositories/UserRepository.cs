@@ -17,9 +17,11 @@ public class UserRepository : Repository<User>, IUserRepository
 
     public User GetUserWithRoles(string usernameOrEmail)
     {
-        return _context.Users
-            .Include(u => u.Roles)
-            .FirstOrDefault(u => u.UserName == usernameOrEmail || u.Email == usernameOrEmail);
+        List<User> users = _context.Users
+            .Include(u => u.Roles).ToList();
+        var user= users.FirstOrDefault(u => u.UserName == usernameOrEmail || u.Email == usernameOrEmail);
+
+        return user;
     }
 
     public IEnumerable<Role> GetUserRoles(int userId)

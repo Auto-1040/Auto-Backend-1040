@@ -11,13 +11,15 @@ using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using BCrypt.Net;
+using AutoMapper;
 
 namespace Auto1040.Service
 {
-    public class AuthService(IConfiguration configuration, IRepositoryManager repositoryManager) : IAuthService
+    public class AuthService(IConfiguration configuration, IRepositoryManager repositoryManager,IMapper mapper) : IAuthService
     {
         private readonly IConfiguration _configuration = configuration;
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
+        private readonly IMapper _mapper = mapper;
 
         public string GenerateJwtToken(User user)
         {
@@ -32,9 +34,12 @@ namespace Auto1040.Service
             };
 
             // Add roles as claims
-            foreach (var role in user.Roles.Select(r => r.RoleName))
+            if (user.Roles != null)
             {
-                claims.Add(new Claim(ClaimTypes.Role, role));
+                foreach (var role in user.Roles.Select(r => r.RoleName))
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, role));
+                }
             }
 
             var token = new JwtSecurityToken(
@@ -68,13 +73,7 @@ namespace Auto1040.Service
             if (ValidateUser(usernameOrEmail, password, out var roles, out var user))
             {
                 var token = GenerateJwtToken(user);
-                var userDto = new UserDto
-                {
-                    Id = user.Id,
-                    UserName = user.UserName,
-                    Email = user.Email,
-                    HashedPassword = user.HashedPassword
-                };
+                var userDto = _mapper.Map<UserDto>(user);
                 var response = new LoginResponseDto
                 {
                     User = userDto,
@@ -86,7 +85,7 @@ namespace Auto1040.Service
             return Result<LoginResponseDto>.Failure("Invalid username or password.");
         }
 
-        public Result<bool> Register(UserDto userDto)
+        public Result<LoginResponseDto> Register(UserDto userDto)
         {
             var user = new User
             {
@@ -94,22 +93,37 @@ namespace Auto1040.Service
                 Email = userDto.Email,
                 HashedPassword = userDto.HashedPassword,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                UpdatedAt = DateTime.UtcNow,
             };
 
             if (_repositoryManager.Users.GetList().Any(u => u.UserName == user.UserName||u.UserName==user.Email || u.Email == user.Email||u.Email==user.UserName))
             {
-                return Result<bool>.Failure("Username or email already exists.");
+                return Result<LoginResponseDto>.Failure("Username or email already exists.");
             }
 
+            user.Roles = new List<Role>();
+            var userRole = _repositoryManager.Roles.GetByNmae("User");
+            if (userRole != null)
+            {
+                user.Roles.Add(userRole);
+            }
             var result = _repositoryManager.Users.Add(user);
             if (result == null)
             {
-                return Result<bool>.Failure("Failed to register user.");
+                return Result<LoginResponseDto>.Failure("Failed to register user.");
             }
+            
+            var token = GenerateJwtToken(result);
 
             _repositoryManager.Save();
-            return Result<bool>.Success(true);
+
+            var responseUserDto = _mapper.Map<UserDto>(result);
+            var response = new LoginResponseDto
+            {
+                User = responseUserDto,
+                Token = token
+            };
+            return Result<LoginResponseDto>.Success(response);
         }
     }
 }

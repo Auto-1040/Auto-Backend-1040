@@ -1,4 +1,5 @@
-﻿using Auto1040.Core.Repositories;
+﻿using Auto1040.Core.Entities;
+using Auto1040.Core.Repositories;
 
 public interface IRepositoryManager
 {
@@ -6,6 +7,6 @@ public interface IRepositoryManager
     public IUserDetailsRepository UserDetails { get; }
     public IPaySlipRepository PaySlips { get; }
     public IOutputFormRepository OutputForms { get; }
-
+    IRoleRepository Roles { get; }
     void Save();
 }

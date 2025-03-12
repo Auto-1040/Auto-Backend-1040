@@ -9,13 +9,14 @@ using System.Threading.Tasks;
 namespace Auto1040.Data.Repositories
 {
     public class RepositoryManager(DataContext context,IUserRepository userRepository,IUserDetailsRepository userDetailsRepository
-        ,IPaySlipRepository paySlipRepository,IOutputFormRepository outputFormRepository):IRepositoryManager
+        ,IPaySlipRepository paySlipRepository,IOutputFormRepository outputFormRepository,IRoleRepository rolesRepository):IRepositoryManager
     {
         private readonly DataContext _context=context;
         public IUserRepository Users { get; }= userRepository;
         public IUserDetailsRepository UserDetails { get; }=userDetailsRepository;
         public IPaySlipRepository PaySlips { get; } = paySlipRepository;
         public IOutputFormRepository OutputForms { get; } = outputFormRepository;
+        public IRoleRepository Roles { get; } = rolesRepository;
         public void Save()
         {
             _context.SaveChanges();

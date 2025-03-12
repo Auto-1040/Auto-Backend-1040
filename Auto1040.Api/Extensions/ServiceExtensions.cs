@@ -22,6 +22,7 @@ namespace Auto1040.Api.Extensions
             services.AddScoped<IUserDetailsRepository, UserDetailsRepository>();
             services.AddScoped<IPaySlipRepository, PaySlipRepository>();
             services.AddScoped<IOutputFormRepository, OutputFormRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
 
             // Register services
             services.AddScoped<IUserService, UserService>();

@@ -15,8 +15,8 @@ namespace Auto1040.Data.Repositories
         {
             try
             {
-                _dbSet.Add(entity);
-                return entity;
+                var newEntity=_dbSet.Add(entity);
+                return newEntity.Entity;
             }
             catch (Exception ex)
             {
