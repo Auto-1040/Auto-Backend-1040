@@ -3,10 +3,10 @@
     public class UserDetailsPostModel
     {
         public int UserId { get; set; }
-        public string FirstName { get; set; }
-        public string LastName { get; set; }
+        public string? FirstName { get; set; }
+        public string? LastName { get; set; }
 
-        public string Ssn { get; set; }
+        public string? Ssn { get; set; }
 
         public string? SpouseFirstName { get; set; }
 
@@ -28,7 +28,7 @@
 
         public string? ForeignPostalCode { get; set; }
 
-        public bool PresidentialCampaign { get; set; }
+        public bool? PresidentialCampaign { get; set; }
 
         public string? FilingStatus { get; set; }
 

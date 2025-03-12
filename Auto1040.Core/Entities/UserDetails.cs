@@ -16,17 +16,14 @@ namespace Auto1040.Core.Entities
         public User? User { get; set; }
 
 
-        [Required]
         [MaxLength(50)]
         public string? FirstName { get; set; }
 
-        [Required]
         [MaxLength(50)]
         public string? LastName { get; set; }
 
-        [Required]
         [MaxLength(20)]
-        public string Ssn { get; set; }
+        public string? Ssn { get; set; }
 
         [MaxLength(50)]
         public string? SpouseFirstName { get; set; }
@@ -58,7 +55,7 @@ namespace Auto1040.Core.Entities
         [MaxLength(20)]
         public string? ForeignPostalCode { get; set; }
 
-        public bool PresidentialCampaign { get; set; }
+        public bool? PresidentialCampaign { get; set; }
 
         [MaxLength(50)]
         public string? FilingStatus { get; set; }

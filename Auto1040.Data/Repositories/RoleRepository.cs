@@ -15,7 +15,7 @@ namespace Auto1040.Data.Repositories
         {
             _context = dataContext;
         }
-        public Role? GetByNmae(string roleName)
+        public Role? GetByName(string roleName)
         {
             var role = _context.Roles.FirstOrDefault(r => r.RoleName == roleName);
             return role;

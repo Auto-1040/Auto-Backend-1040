@@ -53,8 +53,10 @@ namespace Auto1040.Data.Repositories
             try
             {
                 T? source=GetById(id);
+                if(source == null)
+                    return null;
                 UpdateAllProperties(source, entity);
-                return entity;
+                return source;
             }
             catch (Exception ex)
             {
