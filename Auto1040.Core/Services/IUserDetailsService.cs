@@ -6,10 +6,10 @@ namespace Auto1040.Core.Services
     public interface IUserDetailsService
     {
         Result<IEnumerable<UserDetailsDto>> GetAllUserDetails();
-        Result<UserDetailsDto> GetUserDetailsById(int id);
-        Result<bool> AddUserDetails(UserDetailsDto userDetailsDto);
-        Result<bool> UpdateUserDetails(int id, UserDetailsDto userDetailsDto);
-        Result<bool> DeleteUserDetails(int id);
+        Result<UserDetailsDto> GetUserDetailsByUserId(int id);
+        Result<UserDetailsDto> AddUserDetails(UserDetailsDto userDetailsDto);
+        Result<UserDetailsDto> UpdateUserDetailsByUserId(int id, UserDetailsDto userDetailsDto);
+        Result<bool> DeleteUserDetailsByUserId(int id);
         bool IsUserDetailsOwner(int userDetailsId, int userId);
     }
 }

@@ -36,15 +36,15 @@ namespace Auto1040.Api.Controllers
             return Ok(result.Data);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{userId}")]
         [Authorize]
-        public ActionResult<UserDetailsDto> Get(int id)
+        public ActionResult<UserDetailsDto> GetByUserId(int userId)
         {
-            var userId = GetUserId();
-            if (!_userDetailsService.IsUserDetailsOwner(id, userId))
+            var authId = GetUserId();
+            if (!_userDetailsService.IsUserDetailsOwner(userId,authId))
                 return Forbid();
 
-            var result = _userDetailsService.GetUserDetailsById(id);
+            var result = _userDetailsService.GetUserDetailsByUserId(userId);
             if (!result.IsSuccess)
                 return StatusCode(result.StatusCode, result.ErrorMessage);
 
@@ -70,34 +70,34 @@ namespace Auto1040.Api.Controllers
             return Ok(result.Data);
         }
 
-        [HttpPut("{id}")]
+        [HttpPut("{userId}")]
         [Authorize]
-        public ActionResult<bool> Update(int id, [FromBody] UserDetailsPostModel userDetails)
+        public ActionResult<UserDetailsDto> UpdateByUserId(int userId, [FromBody] UserDetailsPostModel userDetails)
         {
             if (userDetails == null)
                 return BadRequest("User details data is required.");
 
-            var userId = GetUserId();
-            if (!_userDetailsService.IsUserDetailsOwner(id, userId))
+            var authId = GetUserId();
+            if (!_userDetailsService.IsUserDetailsOwner(userId, authId))
                 return Forbid();
 
             var userDetailsDto = _mapper.Map<UserDetailsDto>(userDetails);
-            var result = _userDetailsService.UpdateUserDetails(id, userDetailsDto);
+            var result = _userDetailsService.UpdateUserDetailsByUserId(userId,userDetailsDto);
             if (!result.IsSuccess)
                 return StatusCode(result.StatusCode, result.ErrorMessage);
 
-            return NoContent();
+            return Ok(result.Data);
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("{userId}")]
         [Authorize]
-        public ActionResult<bool> Delete(int id)
+        public ActionResult<bool> DeleteByUserId(int userId)
         {
-            var userId = GetUserId();
-            if (!_userDetailsService.IsUserDetailsOwner(id, userId))
+            var authId = GetUserId();
+            if (!_userDetailsService.IsUserDetailsOwner(authId, userId))
                 return Forbid();
 
-            var result = _userDetailsService.DeleteUserDetails(id);
+            var result = _userDetailsService.DeleteUserDetailsByUserId(userId);
             if (!result.IsSuccess)
                 return StatusCode(result.StatusCode, result.ErrorMessage);
 

@@ -102,20 +102,23 @@ namespace Auto1040.Service
             }
 
             user.Roles = new List<Role>();
-            var userRole = _repositoryManager.Roles.GetByNmae("User");
-            if (userRole != null)
+            foreach (var role in userDto.Roles)
             {
-                user.Roles.Add(userRole);
+                var userRole = _repositoryManager.Roles.GetByName(role);
+                if (userRole != null)
+                {
+                    user.Roles.Add(userRole);
+                }
             }
+           
             var result = _repositoryManager.Users.Add(user);
             if (result == null)
             {
                 return Result<LoginResponseDto>.Failure("Failed to register user.");
             }
-            
-            var token = GenerateJwtToken(result);
-
             _repositoryManager.Save();
+
+            var token = GenerateJwtToken(result);
 
             var responseUserDto = _mapper.Map<UserDto>(result);
             var response = new LoginResponseDto

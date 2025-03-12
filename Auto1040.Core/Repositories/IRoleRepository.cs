@@ -9,6 +9,6 @@ namespace Auto1040.Core.Repositories
 {
     public interface IRoleRepository:IRepository<Role>
     {
-        Role? GetByNmae(string roleName);
+        Role? GetByName(string roleName);
     }
 }

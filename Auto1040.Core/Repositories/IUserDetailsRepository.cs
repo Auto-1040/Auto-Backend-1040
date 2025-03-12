@@ -9,5 +9,8 @@ namespace Auto1040.Core.Repositories
 {
     public interface IUserDetailsRepository:IRepository<UserDetails>
     {
+        UserDetails? GetByUserId(int id);
+        UserDetails? UpdateByUserId(int userId,UserDetails userDetails);
+        bool DeleteByUserId(int userId);
     }
 }

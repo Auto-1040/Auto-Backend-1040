@@ -14,5 +14,7 @@ namespace Auto1040.Core.DTOs
         public string Email { get; set; }
         public string HashedPassword { get; set; }
 
+        public List<string> Roles { get; set; }
+
     }
 }
