@@ -15,7 +15,7 @@ using AutoMapper;
 
 namespace Auto1040.Service
 {
-    public class AuthService(IConfiguration configuration, IRepositoryManager repositoryManager,IMapper mapper) : IAuthService
+    public class AuthService(IConfiguration configuration, IRepositoryManager repositoryManager, IMapper mapper) : IAuthService
     {
         private readonly IConfiguration _configuration = configuration;
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
@@ -53,16 +53,12 @@ namespace Auto1040.Service
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
 
-        public bool ValidateUser(string usernameOrEmail, string password, out string[] roles, out User user)
+        public bool ValidateUser(string usernameOrEmail, string password, out User user)
         {
-            roles = null;
             user = _repositoryManager.Users.GetUserWithRoles(usernameOrEmail);
 
             if (user != null && BCrypt.Net.BCrypt.Verify(password, user.HashedPassword))
-            {
-                roles = user.Roles.Select(r => r.RoleName).ToArray();
                 return true;
-            }
 
             return false;
         }
@@ -70,7 +66,7 @@ namespace Auto1040.Service
 
         public Result<LoginResponseDto> Login(string usernameOrEmail, string password)
         {
-            if (ValidateUser(usernameOrEmail, password, out var roles, out var user))
+            if (ValidateUser(usernameOrEmail, password, out var user))
             {
                 var token = GenerateJwtToken(user);
                 var userDto = _mapper.Map<UserDto>(user);
@@ -96,7 +92,7 @@ namespace Auto1040.Service
                 UpdatedAt = DateTime.UtcNow,
             };
 
-            if (_repositoryManager.Users.GetList().Any(u => u.UserName == user.UserName||u.UserName==user.Email || u.Email == user.Email||u.Email==user.UserName))
+            if (_repositoryManager.Users.GetList().Any(u => u.UserName == user.UserName || u.UserName == user.Email || u.Email == user.Email || u.Email == user.UserName))
             {
                 return Result<LoginResponseDto>.Failure("Username or email already exists.");
             }
@@ -110,7 +106,7 @@ namespace Auto1040.Service
                     user.Roles.Add(userRole);
                 }
             }
-           
+
             var result = _repositoryManager.Users.Add(user);
             if (result == null)
             {
