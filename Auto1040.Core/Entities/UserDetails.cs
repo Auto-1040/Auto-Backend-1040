@@ -5,6 +5,15 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Auto1040.Core.Entities
 {
+    public enum FilingStatus
+    {
+        Single,
+        MarriedFilingJointly, // Married filing jointly (even if only one had income)
+        MarriedFilingSeparately, // MFS
+        HeadOfHousehold, // HOH
+        QualifyingSurvivingSpouse // QSS
+    }
+
     [Table("UserDetails")]
     public class UserDetails
     {
@@ -58,7 +67,7 @@ namespace Auto1040.Core.Entities
         public bool? PresidentialCampaign { get; set; }
 
         [MaxLength(50)]
-        public string? FilingStatus { get; set; }
+        public FilingStatus? FilingStatus { get; set; }
 
         public string? Dependents { get; set; }
     }
