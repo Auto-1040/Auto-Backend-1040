@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Text.Json.Serialization;
 
 namespace Auto1040.Core.DTOs
 {
@@ -43,7 +44,8 @@ namespace Auto1040.Core.DTOs
 
         public bool PresidentialCampaign { get; set; }
 
-        public string? FilingStatus { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public FilingStatus? FilingStatus { get; set; }
 
         public string? Dependents { get; set; }
     }

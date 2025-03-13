@@ -1,4 +1,7 @@
-﻿namespace Auto1040.Api.PostModels
+﻿using Auto1040.Core.Entities;
+using System.Text.Json.Serialization;
+
+namespace Auto1040.Api.PostModels
 {
     public class UserDetailsPostModel
     {
@@ -30,7 +33,8 @@
 
         public bool? PresidentialCampaign { get; set; }
 
-        public string? FilingStatus { get; set; }
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        public FilingStatus? FilingStatus { get; set; }
 
         public string? Dependents { get; set; }
     }
