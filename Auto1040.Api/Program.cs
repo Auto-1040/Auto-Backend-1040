@@ -1,8 +1,11 @@
+using Amazon;
+using Amazon.S3;
 using Auto1040.Api;
 using Auto1040.Api.Extensions;
 using Auto1040.Core;
 using Auto1040.Core.Repositories;
 using Auto1040.Core.Services;
+using Auto1040.Core.Shared;
 using Auto1040.Data;
 using Auto1040.Data.Repositories;
 using Auto1040.Service;
@@ -29,6 +32,12 @@ builder.Services.AddSwagger();
 builder.Services.AddAllowAnyCors();
 builder.AddJwtAuthentication();
 builder.AddJwtAuthorization();
+
+// Configure AWS settings
+var awsSettings = builder.Configuration.GetSection("AWS").Get<AwsSettings>();
+var s3Client = new AmazonS3Client(awsSettings.AccessKey, awsSettings.SecretKey, RegionEndpoint.GetBySystemName(awsSettings.Region));
+builder.Services.AddSingleton<IAmazonS3>(s3Client);
+
 
 var app = builder.Build();
 

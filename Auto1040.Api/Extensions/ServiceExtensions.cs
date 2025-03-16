@@ -30,6 +30,7 @@ namespace Auto1040.Api.Extensions
             services.AddScoped<IAuthService, AuthService>();
             services.AddScoped<IPaySlipService, PaySlipService>();
             services.AddScoped<IOutputFormService, OutputFormService>();
+            services.AddScoped<IS3Service, S3Service>();
         }
 
     }
