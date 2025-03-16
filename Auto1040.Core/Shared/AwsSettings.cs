@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Auto1040.Core.Shared
+﻿namespace Auto1040.Core.Shared
 {
     public class AwsSettings
     {
-        public string AccessKey { get; set; }
-        public string SecretKey { get; set; }
-        public string Region { get; set; }
+        public string AccessKey { get; set; } = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID");
+        public string SecretKey { get; set; } = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY");
+        public string Region { get; set; } = Environment.GetEnvironmentVariable("AWS_REGION");
     }
-
 }

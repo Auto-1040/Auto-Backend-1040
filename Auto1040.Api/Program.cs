@@ -9,6 +9,7 @@ using Auto1040.Core.Shared;
 using Auto1040.Data;
 using Auto1040.Data.Repositories;
 using Auto1040.Service;
+using DotNetEnv;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
@@ -16,6 +17,8 @@ using Swashbuckle.AspNetCore.Swagger;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Env.Load();
 
 // Add services to the container.
 
@@ -34,7 +37,14 @@ builder.AddJwtAuthentication();
 builder.AddJwtAuthorization();
 
 // Configure AWS settings
-var awsSettings = builder.Configuration.GetSection("AWS").Get<AwsSettings>();
+
+var awsSettings = new AwsSettings
+{
+    AccessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
+    SecretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"),
+    Region = Environment.GetEnvironmentVariable("AWS_REGION")
+};
+
 var s3Client = new AmazonS3Client(awsSettings.AccessKey, awsSettings.SecretKey, RegionEndpoint.GetBySystemName(awsSettings.Region));
 builder.Services.AddSingleton<IAmazonS3>(s3Client);
 
