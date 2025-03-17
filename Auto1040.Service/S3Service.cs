@@ -28,7 +28,8 @@ public class S3Service : IS3Service
                 BucketName = BucketName,
                 Key = fileName,
                 Verb = HttpVerb.PUT, // to do
-                Expires = DateTime.UtcNow.AddMinutes(10)
+                Expires = DateTime.UtcNow.AddMinutes(10),
+                ContentType= "application/pdf"
             };
 
             var url = _s3Client.GetPreSignedURL(request);
@@ -53,7 +54,8 @@ public class S3Service : IS3Service
                 BucketName = BucketName,
                 Key = fileName,
                 Verb = HttpVerb.GET,
-                Expires = DateTime.UtcNow.AddMinutes(5)
+                Expires = DateTime.UtcNow.AddMinutes(5),
+                ContentType = "application/pdf"
             };
 
             var url = _s3Client.GetPreSignedURL(request);
