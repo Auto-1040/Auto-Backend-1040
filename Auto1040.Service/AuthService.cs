@@ -97,16 +97,6 @@ namespace Auto1040.Service
                 return Result<LoginResponseDto>.Failure("Username or email already exists.");
             }
 
-            user.Roles = new List<Role>();
-            foreach (var role in userDto.Roles)
-            {
-                var userRole = _repositoryManager.Roles.GetByName(role);
-                if (userRole != null)
-                {
-                    user.Roles.Add(userRole);
-                }
-            }
-
             var result = _repositoryManager.Users.Add(user);
             if (result == null)
             {
