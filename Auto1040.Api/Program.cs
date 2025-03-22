@@ -18,7 +18,7 @@ using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
-Env.Load();
+//Env.Load();
 
 // Add services to the container.
 
@@ -40,9 +40,9 @@ builder.AddJwtAuthorization();
 
 var awsSettings = new AwsSettings
 {
-    AccessKey = Environment.GetEnvironmentVariable("AWS_ACCESS_KEY_ID"),
-    SecretKey = Environment.GetEnvironmentVariable("AWS_SECRET_ACCESS_KEY"),
-    Region = Environment.GetEnvironmentVariable("AWS_REGION")
+    AccessKey = builder.Configuration["AWS_ACCESS_KEY_ID"],
+    SecretKey = builder.Configuration["AWS_SECRET_ACCESS_KEY"],
+    Region = builder.Configuration["AWS_REGION"]
 };
 
 var s3Client = new AmazonS3Client(awsSettings.AccessKey, awsSettings.SecretKey, RegionEndpoint.GetBySystemName(awsSettings.Region));
