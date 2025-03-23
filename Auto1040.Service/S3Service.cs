@@ -55,7 +55,6 @@ public class S3Service : IS3Service
                 Key = fileName,
                 Verb = HttpVerb.GET,
                 Expires = DateTime.UtcNow.AddMinutes(5),
-                ContentType = "application/pdf"
             };
 
             var url = _s3Client.GetPreSignedURL(request);

@@ -23,7 +23,7 @@ namespace Auto1040.Service
 
         public string GenerateJwtToken(User user)
         {
-            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt__Key"]));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var claims = new List<Claim>
@@ -43,8 +43,8 @@ namespace Auto1040.Service
             }
 
             var token = new JwtSecurityToken(
-                _configuration["Jwt__Issuer"],
-                _configuration["Jwt__Audience"],
+                _configuration["Jwt:Issuer"],
+                _configuration["Jwt:Audience"],
                 claims,
                 expires: DateTime.UtcNow.AddHours(2),
                 signingCredentials: credentials
