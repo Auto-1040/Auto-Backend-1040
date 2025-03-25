@@ -1,10 +1,12 @@
 ﻿using Amazon.Runtime;
 using Amazon.S3;
 using Amazon.S3.Model;
+using Amazon.S3.Transfer;
 using Auto1040.Core.Shared;
 using Microsoft.Extensions.Options;
 using System;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 public class S3Service : IS3Service
 {
@@ -16,6 +18,32 @@ public class S3Service : IS3Service
     {
         _s3Client = s3Client;
         _awsSettings = awsSettings.Value;
+    }
+    public async Task<Result<string>> UploadFileAsync(string fileName, Stream fileStream)
+    {
+        try
+        {
+            var uploadRequest = new TransferUtilityUploadRequest
+            {
+                InputStream = fileStream,
+                Key = fileName,
+                BucketName = BucketName,
+                ContentType = "application/pdf"
+            };
+
+            using var transferUtility = new TransferUtility(_s3Client);
+            await transferUtility.UploadAsync(uploadRequest);
+
+            return Result<string>.Success($"File '{fileName}' uploaded successfully.");
+        }
+        catch (AmazonS3Exception ex)
+        {
+            return Result<string>.Failure($"Error uploading file to S3: {ex.Message}");
+        }
+        catch (Exception ex)
+        {
+            return Result<string>.Failure($"Unexpected error uploading file: {ex.Message}");
+        }
     }
 
 

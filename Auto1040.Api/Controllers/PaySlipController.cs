@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace Auto1040.Api.Controllers
 {
@@ -43,13 +44,13 @@ namespace Auto1040.Api.Controllers
         }
 
         [HttpPost]
-        public ActionResult<bool> Add([FromBody] PaySlipPostModel paySlip)
+        public async Task<ActionResult<bool>> Add([FromBody] PaySlipPostModel paySlip)
         {
             if (paySlip == null)
                 return BadRequest("Pay slip data is required.");
 
             var paySlipDto = _mapper.Map<PaySlipDto>(paySlip);
-            var result = _paySlipService.AddPaySlip(paySlipDto);
+            var result = await _paySlipService.AddPaySlipAsync(paySlipDto);
             if (!result.IsSuccess)
                 return StatusCode(result.StatusCode, result.ErrorMessage);
 
@@ -57,17 +58,17 @@ namespace Auto1040.Api.Controllers
         }
 
         [HttpPut("{id}")]
-        public ActionResult<bool> Update(int id, [FromBody] PaySlipPostModel paySlip)
+        public async Task<ActionResult<bool>> Update(int id, [FromBody] PaySlipPostModel paySlip)
         {
             if (paySlip == null)
                 return BadRequest("Pay slip data is required.");
 
             var paySlipDto = _mapper.Map<PaySlipDto>(paySlip);
-            var result = _paySlipService.UpdatePaySlip(id, paySlipDto);
+            var result =await _paySlipService.UpdatePaySlipAsync(id, paySlipDto);
             if (!result.IsSuccess)
                 return StatusCode(result.StatusCode, result.ErrorMessage);
 
-            return NoContent();
+            return Ok(result.Data);
         }
 
         [HttpDelete("{id}")]

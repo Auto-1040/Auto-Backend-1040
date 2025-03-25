@@ -6,8 +6,8 @@ namespace Auto1040.Core.Services
     {
         Result<IEnumerable<PaySlipDto>> GetAllPaySlips();
         Result<PaySlipDto> GetPaySlipById(int id);
-        Result<bool> AddPaySlip(PaySlipDto paySlipDto);
-        Result<bool> UpdatePaySlip(int id, PaySlipDto paySlipDto);
+        Task<Result<bool>> AddPaySlipAsync(PaySlipDto paySlipDto);
+        Task<Result<bool>> UpdatePaySlipAsync(int id, PaySlipDto paySlipDto);
         Result<bool> DeletePaySlip(int id);
     }
 }

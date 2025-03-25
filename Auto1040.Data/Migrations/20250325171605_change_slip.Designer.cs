@@ -4,6 +4,7 @@ using Auto1040.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Auto1040.Data.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20250325171605_change_slip")]
+    partial class change_slip
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -70,12 +73,6 @@ namespace Auto1040.Data.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<decimal>("ExchangeRate")
-                        .HasColumnType("decimal(65,30)");
-
                     b.Property<decimal?>("F158_172")
                         .HasColumnType("decimal(65,30)");
 
@@ -88,14 +85,8 @@ namespace Auto1040.Data.Migrations
                     b.Property<decimal?>("F36")
                         .HasColumnType("decimal(65,30)");
 
-                    b.Property<decimal>("TotalIncomeILS")
+                    b.Property<decimal>("TotalIncome")
                         .HasColumnType("decimal(65,30)");
-
-                    b.Property<decimal>("TotalIncomeUSD")
-                        .HasColumnType("decimal(65,30)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime(6)");
 
                     b.Property<int>("UserId")
                         .HasColumnType("int");

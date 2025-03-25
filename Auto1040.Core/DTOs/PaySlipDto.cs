@@ -5,14 +5,9 @@
         public int Id { get; set; }
         public int UserId { get; set; }
         public decimal TotalIncome { get; set; }
-        public decimal TipIncome { get; set; }
-        public decimal HouseholdWages { get; set; }
-        public decimal TaxableDependentBenefits { get; set; }
-        public decimal EmployerAdoptionBenefits { get; set; }
-        public decimal OtherEarnedIncome { get; set; }
-        public decimal TotalTaxableIncome { get; set; }
-        public decimal TotalExemptIncome { get; set; }
-        public decimal TotalDividends { get; set; }
-        public decimal CapitalGains { get; set; }
+        public decimal? F158_172 { get; set; }//Salary
+        public decimal? F218_219 { get; set; }//Continuing education fund
+        public decimal? F248_249 { get; set; }//Pension fund
+        public decimal? F36 { get; set; }//Tax-exempt salary
     }
 }

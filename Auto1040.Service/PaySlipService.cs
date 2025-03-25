@@ -1,8 +1,10 @@
-﻿using Auto1040.Core.DTOs;
+﻿using Amazon.Runtime.Internal;
+using Auto1040.Core.DTOs;
 using Auto1040.Core.Entities;
 using Auto1040.Core.Repositories;
 using Auto1040.Core.Services;
 using AutoMapper;
+using System.Threading.Tasks;
 
 namespace Auto1040.Service
 {
@@ -34,21 +36,23 @@ namespace Auto1040.Service
             return Result<PaySlipDto>.Success(paySlipDto);
         }
 
-        public Result<bool> AddPaySlip(PaySlipDto paySlipDto)
+        public async Task<Result<bool>> AddPaySlipAsync(PaySlipDto paySlipDto)
         {
             var paySlip = _mapper.Map<PaySlip>(paySlipDto);
+            await CalcTotalIncomeAsync(paySlip);
             _repositoryManager.PaySlips.Add(paySlip);
             _repositoryManager.Save();
             return Result<bool>.Success(true);
         }
 
-        public Result<bool> UpdatePaySlip(int id, PaySlipDto paySlipDto)
+        public async Task<Result<bool>> UpdatePaySlipAsync(int id, PaySlipDto paySlipDto)
         {
-            var paySlip = _repositoryManager.PaySlips.GetById(id);
-            if (paySlip == null)
+            var existingPaySlip = _repositoryManager.PaySlips.GetById(id);
+            if (existingPaySlip == null)
                 return Result<bool>.NotFound();
-
-            _mapper.Map(paySlipDto, paySlip);
+            var paySlip=_mapper.Map<PaySlip>(paySlipDto);
+            _repositoryManager.PaySlips.Update(id, paySlip);
+            await CalcTotalIncomeAsync(paySlip);
             _repositoryManager.Save();
             return Result<bool>.Success(true);
         }
@@ -66,5 +70,22 @@ namespace Auto1040.Service
             _repositoryManager.Save();
             return Result<bool>.Success(true);
         }
+
+        public async Task CalcTotalIncomeAsync(PaySlip paySlip)
+        {
+            paySlip.TotalIncomeILS = (paySlip.F158_172 ?? 0) +
+                              (paySlip.F218_219 ?? 0) * 0.075m +
+                              (paySlip.F248_249 ?? 0) +
+                              (paySlip.F36 ?? 0);
+
+            paySlip.ExchangeRate =await GetExchangeRateAsync();
+            paySlip.TotalIncomeUSD = paySlip.TotalIncomeILS * paySlip.ExchangeRate;
+        }
+        public static async Task<decimal> GetExchangeRateAsync()//to do
+        {
+            return 4;
+        }
+
+        
     }
 }
