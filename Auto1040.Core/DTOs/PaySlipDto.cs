@@ -4,10 +4,10 @@
     {
         public int Id { get; set; }
         public int UserId { get; set; }
-        public decimal TotalIncome { get; set; }
-        public decimal? F158_172 { get; set; }//Salary
-        public decimal? F218_219 { get; set; }//Continuing education fund
-        public decimal? F248_249 { get; set; }//Pension fund
-        public decimal? F36 { get; set; }//Tax-exempt salary
+        public int TaxYear { get; set; }
+        public decimal TotalIncomeILS { get; set; }
+        public decimal TotalIncomeUSD { get; set; }
+        public string S3Key { get; set; }
+        public string S3Url { get; set; }
     }
 }

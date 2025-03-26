@@ -13,7 +13,6 @@
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.400" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.415.18" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
-    <PackageReference Include="DotNetEnv" Version="3.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.2" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.13" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.13">
@@ -22,7 +21,9 @@
     </PackageReference>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.0" />
     <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="8.0.3" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="7.3.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="8.0.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Filters" Version="8.0.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore.Newtonsoft" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

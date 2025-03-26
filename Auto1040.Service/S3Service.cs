@@ -12,7 +12,7 @@ public class S3Service : IS3Service
 {
     private readonly IAmazonS3 _s3Client;
     private readonly AwsSettings _awsSettings;
-    private const string BucketName = "auto1040forms";
+    public const string BucketName = "auto1040forms";
 
     public S3Service(IAmazonS3 s3Client, IOptions<AwsSettings> awsSettings)
     {
@@ -33,8 +33,8 @@ public class S3Service : IS3Service
 
             using var transferUtility = new TransferUtility(_s3Client);
             await transferUtility.UploadAsync(uploadRequest);
-
-            return Result<string>.Success($"File '{fileName}' uploaded successfully.");
+            string fileUrl = $"https://{BucketName}.s3.amazonaws.com/{fileName}";
+            return Result<string>.Success(fileUrl);
         }
         catch (AmazonS3Exception ex)
         {

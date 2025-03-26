@@ -1,19 +1,9 @@
 using Amazon;
 using Amazon.S3;
-using Auto1040.Api;
 using Auto1040.Api.Extensions;
-using Auto1040.Core;
-using Auto1040.Core.Repositories;
-using Auto1040.Core.Services;
 using Auto1040.Core.Shared;
 using Auto1040.Data;
-using Auto1040.Data.Repositories;
-using Auto1040.Service;
-using DotNetEnv;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
-using Swashbuckle.AspNetCore.Swagger;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +36,7 @@ var awsSettings = new AwsSettings
 var s3Client = new AmazonS3Client(awsSettings.AccessKey, awsSettings.SecretKey, RegionEndpoint.GetBySystemName(awsSettings.Region));
 builder.Services.AddSingleton<IAmazonS3>(s3Client);
 
+builder.Services.Configure<PythonServiceSettings>(builder.Configuration.GetSection("PythonServiceSettings"));
 
 var app = builder.Build();
 

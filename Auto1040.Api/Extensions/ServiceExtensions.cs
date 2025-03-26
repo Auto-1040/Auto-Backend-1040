@@ -31,6 +31,10 @@ namespace Auto1040.Api.Extensions
             services.AddScoped<IPaySlipService, PaySlipService>();
             services.AddScoped<IOutputFormService, OutputFormService>();
             services.AddScoped<IS3Service, S3Service>();
+            services.AddScoped<IProcessingService, ProcessingService>();
+
+            // Register HttpClient
+            services.AddHttpClient();
         }
 
     }
