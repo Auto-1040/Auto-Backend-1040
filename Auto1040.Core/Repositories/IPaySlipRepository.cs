@@ -4,6 +4,7 @@ namespace Auto1040.Core.Repositories
 {
     public interface IPaySlipRepository : IRepository<PaySlip>
     {
-        // Add any additional methods specific to PaySlip if needed
+        public PaySlip? GetByIdWithUser(int id);
     }
+
 }

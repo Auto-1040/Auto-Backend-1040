@@ -10,5 +10,6 @@ namespace Auto1040.Core.Services
         Result<bool> UpdateOutputForm(int id, OutputFormDto outputFormDto);
         Result<bool> DeleteOutputForm(int id);
         Result<bool> SoftDelete(int id);
+        Task<Result<OutputFormDto>> GenarateOutputFormAsync(int paySlipId);
     }
 }

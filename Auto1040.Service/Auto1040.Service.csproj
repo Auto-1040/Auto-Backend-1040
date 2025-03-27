@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="AWSSDK.S3" Version="3.7.415.18" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.2" />
     <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="9.0.2" />

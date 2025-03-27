@@ -2,6 +2,7 @@
 using Auto1040.Core.DTOs;
 using Auto1040.Core.Entities;
 using Auto1040.Core.Shared;
+using Microsoft.AspNetCore.Http;
 
 public interface IProcessingService
 {
@@ -17,4 +18,6 @@ public interface IProcessingService
     /// <param name="year">The tax year.</param>
     /// <returns>A Result object containing the exchange rate or an error message.</returns>
     Task<Result<decimal>> GetExchangeRateAsync(int year);
+    Task<Result<IFormFile>> GenerateOutputFormAsync(string jsonData);
+
 }

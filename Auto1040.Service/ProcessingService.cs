@@ -7,8 +7,11 @@ using System.Threading.Tasks;
 using Auto1040.Core.DTOs;
 using Auto1040.Core.Entities;
 using Auto1040.Core.Shared;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Internal;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using ThirdParty.Json.LitJson;
 
 public class ProcessingService : IProcessingService
 {
@@ -78,5 +81,35 @@ public class ProcessingService : IProcessingService
             return Result<decimal>.Failure($"Error fetching exchange rate: {ex.Message}");
         }
     }
+    public async Task<Result<IFormFile>> GenerateOutputFormAsync(string jsonData)
+    {
+        try
+        {
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+            var response = await _httpClient.PostAsync($"{_pythonSettings.BaseUrl}/form-1040", content);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                _logger.LogError("Failed to generate form 1040. Status: {StatusCode}, Error: {Error}", response.StatusCode, errorMessage);
+                return Result<IFormFile>.Failure($"Error generating form 1040: {errorMessage}");
+            }
+
+            var stream = await response.Content.ReadAsStreamAsync();
+            var formFile = new FormFile(stream, 0, stream.Length, "file", "filled_form.pdf")
+            {
+                Headers = new HeaderDictionary(),
+                ContentType = "application/pdf"
+            };
+
+            return Result<IFormFile>.Success(formFile);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "An error occurred while generating form 1040.");
+            return Result<IFormFile>.Failure("Unexpected error occurred while generating form 1040.");
+        }
+    }
+
 
 }

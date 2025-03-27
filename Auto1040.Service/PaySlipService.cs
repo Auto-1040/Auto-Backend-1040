@@ -71,8 +71,10 @@ namespace Auto1040.Service
                 return Result<PaySlipDto>.Failure(result.ErrorMessage);
             var paySlipFields=result.Data;
 
+            // Store the extracted fields to the db
             await CalcTotalIncomeAsync(paySlipFields);
             _repositoryManager.PaySlips.Update(savedPaySlip.Id, paySlipFields);
+            _repositoryManager.Save();
             return Result<PaySlipDto>.Success(_mapper.Map<PaySlipDto>(savedPaySlip));
         }
 
@@ -132,19 +134,11 @@ namespace Auto1040.Service
         {
             var response = await _processingService.GetExchangeRateAsync(year);
             if (!response.IsSuccess)
-                throw new Exception("Failed to get exchange rate from API");
-            var json = response.Data;
-            var data = JsonSerializer.Deserialize<ExchangeRateResponse>(json);
-            if (data == null)
-                throw new Exception("Failed to deserialize exchange rate response");
-            return data.ExchangeRate;
+                throw new Exception($"Failed to get exchange rate from API: {response.ErrorMessage}");
+            return response.Data;
         }
 
-        private class ExchangeRateResponse
-        {
-            public int Year { get; set; }
-            public decimal ExchangeRate { get; set; }
-        }
+       
 
 
     }

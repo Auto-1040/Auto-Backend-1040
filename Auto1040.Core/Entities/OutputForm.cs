@@ -20,7 +20,7 @@ namespace Auto1040.Core.Entities
 
         [Required]
         [MaxLength(255)]
-        public string FilePath { get; set; }
+        public string S3Url { get; set; }
 
         [MaxLength(500)]
         public string S3Key { get; set; }
