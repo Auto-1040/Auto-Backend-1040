@@ -95,6 +95,17 @@ namespace Auto1040.Api.Controllers
             return NoContent();
         }
 
-        
+        [HttpPost("generate")]
+        public async Task<IActionResult> GenerateOutputForm([FromQuery] int paySlipId)
+        {
+            var result = await _outputFormService.GenarateOutputFormAsync(paySlipId);
+            if (result.IsSuccess)
+            {
+                return Ok(result.Data);
+            }
+            return BadRequest(result.ErrorMessage);
+        }
+
+
     }
 }

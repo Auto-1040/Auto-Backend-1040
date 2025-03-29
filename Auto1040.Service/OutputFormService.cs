@@ -40,39 +40,7 @@ namespace Auto1040.Service
             return Result<OutputFormDto>.Success(outputFormDto);
         }
 
-        public async Task<Result<OutputFormDto>> GenarateOutputFormAsync(int paySlipId)
-        {
-            // Generate filled file
-            var paySlip = _repositoryManager.PaySlips.GetByIdWithUser(paySlipId);
-            if (paySlip == null)
-                return Result<OutputFormDto>.NotFound();
-            var jsonData= ConvertUserToJson(paySlip.User, paySlip);
-            var result = await _processingService.GenerateOutputFormAsync(jsonData);
-            if (!result.IsSuccess)
-                return Result<OutputFormDto>.Failure(result.ErrorMessage);
-
-            // Upload the file to S3
-            var fileName = Guid.NewGuid().ToString() + ".pdf"; // Generate a unique file name
-            var fileUploadResult=await _s3Service.UploadFileAsync(fileName, result.Data.OpenReadStream());
-
-            if (!fileUploadResult.IsSuccess)
-            {
-                return Result<OutputFormDto>.Failure(fileUploadResult.ErrorMessage);
-            }
-
-            // Store output form to db
-            var outputForm = new OutputForm
-            {
-                UserId = paySlip.User.Id,
-                S3Key = fileName,
-                S3Url = fileUploadResult.Data,
-                Year = paySlip.TaxYear
-            };
-            var savedOutputForm=_repositoryManager.OutputForms.Add(outputForm);
-            _repositoryManager.Save();
-            return Result<OutputFormDto>.Success(_mapper.Map<OutputFormDto>(savedOutputForm));
-
-        }
+        
         public Result<bool> AddOutputForm(OutputFormDto outputFormDto)
         {
             var outputForm = _mapper.Map<OutputForm>(outputFormDto);
@@ -124,6 +92,39 @@ namespace Auto1040.Service
             outputForm.IsDeleted = true;
             _repositoryManager.Save();
             return Result<bool>.Success(true);
+        }
+        public async Task<Result<OutputFormDto>> GenarateOutputFormAsync(int paySlipId)
+        {
+            // Generate filled file
+            var paySlip = _repositoryManager.PaySlips.GetByIdWithUser(paySlipId);
+            if (paySlip == null)
+                return Result<OutputFormDto>.NotFound();
+            var jsonData = ConvertUserToJson(paySlip.User, paySlip);
+            var result = await _processingService.GenerateOutputFormAsync(jsonData);
+            if (!result.IsSuccess)
+                return Result<OutputFormDto>.Failure(result.ErrorMessage);
+
+            // Upload the file to S3
+            var fileName = Guid.NewGuid().ToString() + ".pdf"; // Generate a unique file name
+            var fileUploadResult = await _s3Service.UploadFileAsync(fileName, result.Data);
+
+            if (!fileUploadResult.IsSuccess)
+            {
+                return Result<OutputFormDto>.Failure(fileUploadResult.ErrorMessage);
+            }
+
+            // Store output form to db
+            var outputForm = new OutputForm
+            {
+                UserId = paySlip.User.Id,
+                S3Key = fileName,
+                S3Url = fileUploadResult.Data,
+                Year = paySlip.TaxYear
+            };
+            var savedOutputForm = _repositoryManager.OutputForms.Add(outputForm);
+            _repositoryManager.Save();
+            return Result<OutputFormDto>.Success(_mapper.Map<OutputFormDto>(savedOutputForm));
+
         }
 
         private string ConvertUserToJson(User user, PaySlip paySlip)

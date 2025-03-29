@@ -11,7 +11,7 @@ namespace Auto1040.Data.Repositories
         }
         public PaySlip? GetByIdWithUser(int id)
         {
-            return _dbSet.Include(p=>p.User).FirstOrDefault(p=>p.Id==id);
+            return _dbSet.Include(p=>p.User).ThenInclude(u=>u.UserDetails).FirstOrDefault(p=>p.Id==id);
         }
 
     }

@@ -18,6 +18,6 @@ public interface IProcessingService
     /// <param name="year">The tax year.</param>
     /// <returns>A Result object containing the exchange rate or an error message.</returns>
     Task<Result<decimal>> GetExchangeRateAsync(int year);
-    Task<Result<IFormFile>> GenerateOutputFormAsync(string jsonData);
+    Task<Result<Stream>> GenerateOutputFormAsync(string jsonData);
 
 }

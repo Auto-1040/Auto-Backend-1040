@@ -48,4 +48,14 @@
             StatusCode = 400
         };
     }
+
+    public static Result<T> Forbid(string errorMessage = "Forbid")
+    {
+        return new Result<T>
+        {
+            IsSuccess = false,
+            ErrorMessage = errorMessage,
+            StatusCode = 403
+        };
+    }
 }

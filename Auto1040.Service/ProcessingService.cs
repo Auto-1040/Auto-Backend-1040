@@ -81,7 +81,7 @@ public class ProcessingService : IProcessingService
             return Result<decimal>.Failure($"Error fetching exchange rate: {ex.Message}");
         }
     }
-    public async Task<Result<IFormFile>> GenerateOutputFormAsync(string jsonData)
+    public async Task<Result<Stream>> GenerateOutputFormAsync(string jsonData)
     {
         try
         {
@@ -92,22 +92,17 @@ public class ProcessingService : IProcessingService
             {
                 var errorMessage = await response.Content.ReadAsStringAsync();
                 _logger.LogError("Failed to generate form 1040. Status: {StatusCode}, Error: {Error}", response.StatusCode, errorMessage);
-                return Result<IFormFile>.Failure($"Error generating form 1040: {errorMessage}");
+                return Result<Stream>.Failure($"Error generating form 1040: {errorMessage}");
             }
 
             var stream = await response.Content.ReadAsStreamAsync();
-            var formFile = new FormFile(stream, 0, stream.Length, "file", "filled_form.pdf")
-            {
-                Headers = new HeaderDictionary(),
-                ContentType = "application/pdf"
-            };
 
-            return Result<IFormFile>.Success(formFile);
+            return Result<Stream>.Success(stream);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "An error occurred while generating form 1040.");
-            return Result<IFormFile>.Failure("Unexpected error occurred while generating form 1040.");
+            return Result<Stream>.Failure("Unexpected error occurred while generating form 1040.");
         }
     }
 

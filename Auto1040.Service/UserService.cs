@@ -108,6 +108,14 @@ namespace Auto1040.Service
                 return false;
             }
         }
+        public bool IsUserAdmin(int userId)
+        {
+            var roles = _repositoryManager.Users.GetUserRoles(userId);
+            if (roles == null)
+                return false;
+
+            return roles.Any(r => r.RoleName == "Admin");
+        }
     }
 }
 
