@@ -19,7 +19,7 @@ namespace Auto1040.Service
         private readonly IProcessingService _processingService;
         private readonly IUserService _userService;
 
-        public PaySlipService(IRepositoryManager repositoryManager, IMapper mapper, IS3Service s3Service, IProcessingService processingService,IUserService userService)
+        public PaySlipService(IRepositoryManager repositoryManager, IMapper mapper, IS3Service s3Service, IProcessingService processingService, IUserService userService)
         {
             _repositoryManager = repositoryManager;
             _mapper = mapper;
@@ -28,9 +28,9 @@ namespace Auto1040.Service
             _userService = userService;
         }
 
-       
 
-        public Result<IEnumerable<PaySlipDto>> GetPaySlipByUserId(int? userId,int authId)
+
+        public Result<IEnumerable<PaySlipDto>> GetPaySlipByUserId(int? userId, int authId)
         {
             if (authId != userId)
                 return Result<IEnumerable<PaySlipDto>>.Forbid("You are not authorized to access this resource.");
@@ -41,7 +41,7 @@ namespace Auto1040.Service
             }
             else
             {
-                if(_userService.IsUserAdmin(userId.Value))
+                if (_userService.IsUserAdmin(userId.Value))
                     return Result<IEnumerable<PaySlipDto>>.Forbid("You are not authorized to access this resource.");
                 else
                     paySlips = _repositoryManager.PaySlips.GetList().Where(p => p.UserId == userId && !p.IsDeleted);
@@ -64,7 +64,7 @@ namespace Auto1040.Service
             return Result<PaySlipDto>.Success(paySlipDto);
         }
 
-       
+
         public async Task<Result<bool>> AddPaySlipAsync(PaySlipDto paySlipDto)
         {
             var paySlip = _mapper.Map<PaySlip>(paySlipDto);
@@ -99,8 +99,8 @@ namespace Auto1040.Service
 
             return Result<bool>.Success(true);
         }
-        
-        
+
+
         public async Task<Result<PaySlipDto>> ProcessPaySlipFileAsync(IFormFile file, int userId)
         {
             // Upload the file to S3
@@ -116,7 +116,10 @@ namespace Auto1040.Service
             {
                 UserId = userId,
                 S3Key = fileName,
-                S3Url = fileUploadResult.Data
+                S3Url = fileUploadResult.Data,
+                TaxYear = DateTime.UtcNow.Year - 1,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
             };
 
             var savedPaySlip = _repositoryManager.PaySlips.Add(paySlip);
@@ -135,7 +138,7 @@ namespace Auto1040.Service
             return Result<PaySlipDto>.Success(_mapper.Map<PaySlipDto>(savedPaySlip));
         }
 
-        public bool IsPaySlipOwner(int paySlipId,int authId)
+        public bool IsPaySlipOwner(int paySlipId, int authId)
         {
             var paySlip = _repositoryManager.PaySlips.GetById(paySlipId);
             if (paySlip == null)
@@ -161,7 +164,7 @@ namespace Auto1040.Service
                 return false;
             }
         }
-        
+
         private async Task<decimal> GetYearlyAvgExchangeRateAsync(int year)
         {
             var response = await _processingService.GetExchangeRateAsync(year);
@@ -170,7 +173,7 @@ namespace Auto1040.Service
             return response.Data;
         }
 
-       
+
 
 
     }

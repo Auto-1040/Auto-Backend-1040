@@ -12,11 +12,12 @@ namespace Auto1040.Core.Entities
         public int Id { get; set; }
 
         [Required]
+        [StringLength(50, MinimumLength = 2, ErrorMessage = "Username must be between 2 and 50 characters.")]
         public string UserName { get; set; }
 
         [Required]
         [MaxLength(100)]
-        [EmailAddress]
+        [EmailAddress(ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
 
         [Required]

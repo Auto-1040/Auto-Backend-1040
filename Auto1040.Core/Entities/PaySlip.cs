@@ -24,8 +24,8 @@ namespace Auto1040.Core.Entities
         public string S3Key { get; set; }
         public string S3Url { get; set; }
         public bool IsDeleted { get; set; }
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } 
+        public DateTime UpdatedAt { get; set; } 
 
     }
 }
