@@ -7,7 +7,7 @@ public class MappingProfile : Profile
     public MappingProfile()
     {
         CreateMap<User, UserDto>()
-                    .ForMember(dest => dest.Roles, opt => opt.Ignore()) 
+                    .ForMember(dest => dest.Roles, opt => opt.MapFrom(src => src.Roles == null ? null : src.Roles.Select(r => r.RoleName)))
                     .ReverseMap()
                     .ForMember(dest => dest.Roles, opt => opt.Ignore());
         CreateMap<UserDetails, UserDetailsDto>().ReverseMap();

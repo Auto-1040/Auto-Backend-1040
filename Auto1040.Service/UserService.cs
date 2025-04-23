@@ -12,12 +12,12 @@ namespace Auto1040.Service
 {
     public class UserService(IRepositoryManager repositoryManager, IMapper mapper) : IUserService
     {
-        private readonly IRepositoryManager _repositoryManager=repositoryManager;
-        private readonly IMapper _mapper=mapper;
+        private readonly IRepositoryManager _repositoryManager = repositoryManager;
+        private readonly IMapper _mapper = mapper;
 
         public Result<IEnumerable<UserDto>> GetAllUsers()
         {
-            var result = _mapper.Map<List<UserDto>>(_repositoryManager.Users.GetList());
+            var result = _mapper.Map<List<UserDto>>(_repositoryManager.Users.GetAllUsersWithRoles());
             return Result<IEnumerable<UserDto>>.Success(result);
         }
 
@@ -29,29 +29,44 @@ namespace Auto1040.Service
             return Result<UserDto>.Success(_mapper.Map<UserDto>(user));
         }
 
-        public Result<bool> AddUser(UserDto userDto)
+        public Result<UserDto> AddUser(UserDto userDto)
         {
             var user = _mapper.Map<User>(userDto);
             if (user == null)
-                return Result<bool>.BadRequest("Cannot add user of null reference");
+                return Result<UserDto>.BadRequest("Cannot add user of null reference");
 
             if (!IsValidEmail(user.Email))
-                return Result<bool>.BadRequest("Invalid email format.");
-            if(user.UserName == null)
-                return Result<bool>.BadRequest("Username is required.");
+                return Result<UserDto>.BadRequest("Invalid email format.");
+            if (!IsValidUserName(user.UserName))
+                return Result<UserDto>.BadRequest("Invalid username format.");
+            if (user.HashedPassword == null)
+                return Result<UserDto>.BadRequest("Passsword is required.");
 
-            if (_repositoryManager.Users.GetList().Any(u => u.Email == user.Email))
-                return Result<bool>.BadRequest("A user with this email already exists.");
+            if (_repositoryManager.Users.GetList().Any(u => u.Email == user.Email || u.Email == user.UserName || u.UserName == user.UserName || u.UserName == user.Email))
+                return Result<UserDto>.BadRequest("A user with this username or email already exists.");
 
             user.CreatedAt = DateTime.UtcNow;
             user.UpdatedAt = DateTime.UtcNow;
 
+            //add roles
+            user.Roles = new List<Role>();
+            if (userDto.Roles != null)
+            {
+                foreach (var roleName in userDto.Roles)
+                {
+                    var role = _repositoryManager.Roles.GetByName(roleName);
+                    if (role != null)
+                        user.Roles.Add(role);
+                }
+            }
+
             var result = _repositoryManager.Users.Add(user);
             if (result == null)
-                return Result<bool>.Failure("Failed to add user");
+                return Result<UserDto>.Failure("Failed to add user");
 
             _repositoryManager.Save();
-            return Result<bool>.Success(true);
+            var resultDto = _mapper.Map<UserDto>(result);
+            return Result<UserDto>.Success(resultDto);
         }
 
         public Result<bool> UpdateUser(int id, UserDto userDto)
@@ -60,17 +75,29 @@ namespace Auto1040.Service
             if (user == null)
                 return Result<bool>.BadRequest("Cannot update user to null reference");
 
-            if (user.Email!=null&&!IsValidEmail(user.Email))
+            if (user.Email != null && !IsValidEmail(user.Email))
                 return Result<bool>.BadRequest("Invalid email format.");
-
+            if (user.UserName != null && !IsValidUserName(user.UserName))
+                return Result<bool>.BadRequest("Invalid username format.");
             var existingUser = _repositoryManager.Users.GetById(id);
             if (existingUser == null)
                 return Result<bool>.NotFound($"Id {id} is not found");
 
-            if (_repositoryManager.Users.GetList().Any(u => u.Email == user.Email && u.Id != id))
-                return Result<bool>.BadRequest("A user with this email already exists.");
-
+            if (_repositoryManager.Users.GetList().Any(u => u.Id != id && (u.Email == user.Email || u.Email == user.UserName || u.UserName == user.UserName || u.UserName == user.Email)))
+                return Result<bool>.BadRequest("A user with this username or email already exists.");
+            
             user.UpdatedAt = DateTime.UtcNow;
+
+            if(userDto.Roles!=null)
+            {
+                user.Roles = new List<Role>();
+                foreach (var roleName in userDto.Roles)
+                {
+                    var role = _repositoryManager.Roles.GetByName(roleName);
+                    if (role != null)
+                        user.Roles.Add(role);
+                }
+            }
 
             var result = _repositoryManager.Users.Update(id, user);
             if (result == null)
@@ -108,6 +135,17 @@ namespace Auto1040.Service
                 return false;
             }
         }
+
+        private bool IsValidUserName(string username)
+        {
+            if (string.IsNullOrEmpty(username))
+                return false;
+            if (username.Length < 2)
+                return false;
+            return true;
+
+        }
+
         public bool IsUserAdmin(int userId)
         {
             var roles = _repositoryManager.Users.GetUserRoles(userId);

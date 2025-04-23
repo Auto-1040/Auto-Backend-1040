@@ -37,6 +37,7 @@ var s3Client = new AmazonS3Client(awsSettings.AccessKey, awsSettings.SecretKey, 
 builder.Services.AddSingleton<IAmazonS3>(s3Client);
 
 builder.Services.Configure<PythonServiceSettings>(builder.Configuration.GetSection("PythonServiceSettings"));
+builder.Services.AddApplicationInsightsTelemetry();
 
 var app = builder.Build();
 

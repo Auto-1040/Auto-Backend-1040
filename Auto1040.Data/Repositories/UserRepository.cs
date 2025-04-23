@@ -15,15 +15,19 @@ public class UserRepository : Repository<User>, IUserRepository
         _context = context;
     }
 
-    public User GetUserWithRoles(string usernameOrEmail)
+    public User? GetUserWithRoles(string usernameOrEmail)
     {
-        List<User> users = _context.Users
-            .Include(u => u.Roles).ToList();
-        var user= users.FirstOrDefault(u => u.UserName == usernameOrEmail || u.Email == usernameOrEmail);
+        var user = _context.Users
+            .Include(u => u.Roles)
+            .FirstOrDefault(u => u.UserName == usernameOrEmail || u.Email == usernameOrEmail);
 
         return user;
     }
 
+    public IEnumerable<User> GetAllUsersWithRoles()
+    {
+        return _context.Users.Include(u => u.Roles);
+    }
     public IEnumerable<Role> GetUserRoles(int userId)
     {
         var user = _context.Users

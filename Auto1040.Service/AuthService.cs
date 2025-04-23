@@ -15,13 +15,14 @@ using AutoMapper;
 
 namespace Auto1040.Service
 {
-    public class AuthService(IConfiguration configuration, IRepositoryManager repositoryManager, IMapper mapper) : IAuthService
+    public class AuthService(IConfiguration configuration, IRepositoryManager repositoryManager,IUserService userService, IMapper mapper) : IAuthService
     {
         private readonly IConfiguration _configuration = configuration;
         private readonly IRepositoryManager _repositoryManager = repositoryManager;
+        private readonly IUserService _userService = userService;
         private readonly IMapper _mapper = mapper;
 
-        public string GenerateJwtToken(User user)
+        public string GenerateJwtToken(UserDto user)
         {
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
@@ -30,13 +31,14 @@ namespace Auto1040.Service
             {
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
                 new Claim(ClaimTypes.Name, user.UserName),
+                new Claim(ClaimTypes.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
             };
 
             // Add roles as claims
             if (user.Roles != null)
             {
-                foreach (var role in user.Roles.Select(r => r.RoleName))
+                foreach (var role in user.Roles)
                 {
                     claims.Add(new Claim(ClaimTypes.Role, role));
                 }
@@ -68,8 +70,9 @@ namespace Auto1040.Service
         {
             if (ValidateUser(usernameOrEmail, password, out var user))
             {
-                var token = GenerateJwtToken(user);
                 var userDto = _mapper.Map<UserDto>(user);
+                var token = GenerateJwtToken(userDto);
+
                 var response = new LoginResponseDto
                 {
                     User = userDto,
@@ -83,35 +86,24 @@ namespace Auto1040.Service
 
         public Result<LoginResponseDto> Register(UserDto userDto)
         {
-            var user = new User
-            {
-                UserName = userDto.UserName,
-                Email = userDto.Email,
-                HashedPassword = userDto.HashedPassword,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
-            };
+            userDto.Roles = new List<string> { "User" };
 
-            if (_repositoryManager.Users.GetList().Any(u => u.UserName == user.UserName || u.UserName == user.Email || u.Email == user.Email || u.Email == user.UserName))
-            {
-                return Result<LoginResponseDto>.Failure("Username or email already exists.");
-            }
+            var addUserResult = _userService.AddUser(userDto);
+            if (!addUserResult.IsSuccess)
+                return Result<LoginResponseDto>.Failure(addUserResult.ErrorMessage);
 
-            var result = _repositoryManager.Users.Add(user);
-            if (result == null)
-            {
-                return Result<LoginResponseDto>.Failure("Failed to register user.");
-            }
-            _repositoryManager.Save();
 
-            var token = GenerateJwtToken(result);
+            if (addUserResult.Data == null)
+                return Result<LoginResponseDto>.Failure("Failed to load user after registration.");
 
-            var responseUserDto = _mapper.Map<UserDto>(result);
+            var token = GenerateJwtToken(addUserResult.Data);
+
             var response = new LoginResponseDto
             {
-                User = responseUserDto,
+                User = addUserResult.Data,
                 Token = token
             };
+
             return Result<LoginResponseDto>.Success(response);
         }
     }

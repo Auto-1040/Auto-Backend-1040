@@ -10,6 +10,8 @@ namespace Auto1040.Core.Repositories
     public interface IUserRepository : IRepository<User>
     {
         IEnumerable<Role> GetUserRoles(int userId);
+        IEnumerable<User> GetAllUsersWithRoles();
+
         User GetUserWithRoles(string usernameOrEmail);
 
 
