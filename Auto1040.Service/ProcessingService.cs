@@ -30,8 +30,10 @@ public class ProcessingService : IProcessingService
     {
         try
         {
+
             var requestData = new { bucket_name=bucketName,file_key=fileKey };
             var jsonContent = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
+            _logger.LogInformation("Generating form 1040 with data: {JsonData} service url: {BaseUrl}", jsonContent, _pythonSettings.BaseUrl);
 
             var response = await _httpClient.PostAsync($"{_pythonSettings.BaseUrl}/payslip-data", jsonContent);
 
@@ -87,6 +89,7 @@ public class ProcessingService : IProcessingService
         {
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
             var response = await _httpClient.PostAsync($"{_pythonSettings.BaseUrl}/form-1040", content);
+
 
             if (!response.IsSuccessStatusCode)
             {
