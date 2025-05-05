@@ -40,8 +40,8 @@ public class ProcessingService : IProcessingService
             if (!response.IsSuccessStatusCode)
             {
                 var errorMessage = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to extract payslip data. Status: {StatusCode}, Error: {Error}", response.StatusCode, errorMessage);
-                return Result<PaySlip>.Failure($"Error extracting payslip data: {errorMessage}");
+                _logger.LogError("Failed to extract payslip data. Status: {StatusCode},Service Url: {BaseUrl} Error: {Error}", response.StatusCode,_pythonSettings.BaseUrl, errorMessage);
+                return Result<PaySlip>.Failure($"Error extracting payslip data: {errorMessage} Service Url: {_pythonSettings.BaseUrl}");
             }
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
