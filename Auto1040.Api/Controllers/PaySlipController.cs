@@ -62,7 +62,7 @@ namespace Auto1040.Api.Controllers
                 return BadRequest("Pay slip data is required.");
 
             var paySlipDto = _mapper.Map<PaySlipDto>(paySlip);
-            var result = await _paySlipService.UpdatePaySlipAsync(id, paySlipDto);
+            var result =  _paySlipService.UpdatePaySlip(id, paySlipDto);
             if (!result.IsSuccess)
                 return StatusCode(result.StatusCode, result.ErrorMessage);
 

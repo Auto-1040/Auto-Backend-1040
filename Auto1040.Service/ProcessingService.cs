@@ -26,35 +26,55 @@ public class ProcessingService : IProcessingService
         _pythonSettings = pythonSettings.Value;
     }
 
-    public async Task<Result<PaySlip>> ExtractDataOcrAsync(string bucketName,string fileKey)
+    public async Task<Result<(PaySlip payslipData, decimal exchangeRate)>> ProcessPayslipAsync(string bucketName, string fileKey, int year)
     {
         try
         {
+            var requestData = new
+            {
+                bucket_name = bucketName,
+                file_key = fileKey,
+                year = year
+            };
 
-            var requestData = new { bucket_name=bucketName,file_key=fileKey };
             var jsonContent = new StringContent(JsonSerializer.Serialize(requestData), Encoding.UTF8, "application/json");
-            _logger.LogInformation("Generating form 1040 with data: {JsonData} service url: {BaseUrl}", jsonContent, _pythonSettings.BaseUrl);
+            _logger.LogInformation("Processing payslip with data: {JsonData} service url: {BaseUrl}/process-payslip", jsonContent, _pythonSettings.BaseUrl);
 
-            var response = await _httpClient.PostAsync($"{_pythonSettings.BaseUrl}/payslip-data", jsonContent);
+            var response = await _httpClient.PostAsync($"{_pythonSettings.BaseUrl}/process-payslip", jsonContent);
 
             if (!response.IsSuccessStatusCode)
             {
                 var errorMessage = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Failed to extract payslip data. Status: {StatusCode},Service Url: {BaseUrl} Error: {Error}", response.StatusCode,_pythonSettings.BaseUrl, errorMessage);
-                return Result<PaySlip>.Failure($"Error extracting payslip data: {errorMessage} Service Url: {_pythonSettings.BaseUrl}");
+                _logger.LogError("Failed to process payslip. Status: {StatusCode}, Error: {Error}", response.StatusCode, errorMessage);
+                return Result<(PaySlip, decimal)>.Failure($"Error processing payslip: {errorMessage}");
             }
 
             var jsonResponse = await response.Content.ReadAsStringAsync();
-            var payslipData = JsonSerializer.Deserialize<PaySlip>(jsonResponse, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            var result = JsonDocument.Parse(jsonResponse);
 
-            return payslipData != null 
-                ? Result<PaySlip>.Success(payslipData) 
-                : Result<PaySlip>.Failure("Failed to parse payslip data.");
+            // Extract payslip data
+            var payslipData = result.RootElement.TryGetProperty("payslip_data", out var payslipElement) && payslipElement.ValueKind != JsonValueKind.Null
+                ? JsonSerializer.Deserialize<PaySlip>(payslipElement.GetRawText(), new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+                : null;
+
+            // Extract exchange rate
+            var exchangeRate = result.RootElement.TryGetProperty("exchange_rate", out var exchangeRateElement) &&
+                               exchangeRateElement.TryGetProperty("rate", out var rateElement) &&
+                               rateElement.TryGetDecimal(out var rate)
+                ? rate
+                : throw new Exception("Exchange rate not found in response.");
+
+            if (payslipData == null)
+            {
+                return Result<(PaySlip, decimal)>.Failure("Failed to parse payslip data.");
+            }
+
+            return Result<(PaySlip, decimal)>.Success((payslipData, exchangeRate));
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "An error occurred while extracting payslip data.");
-            return Result<PaySlip>.Failure("Unexpected error occurred while processing payslip data.");
+            _logger.LogError(ex, "An error occurred while processing payslip.");
+            return Result<(PaySlip, decimal)>.Failure("Unexpected error occurred while processing payslip.");
         }
     }
 

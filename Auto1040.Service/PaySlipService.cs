@@ -65,23 +65,23 @@ namespace Auto1040.Service
         }
 
 
-        public async Task<Result<bool>> AddPaySlipAsync(PaySlipDto paySlipDto)
+        public Result<bool> AddPaySlip(PaySlipDto paySlipDto)
         {
             var paySlip = _mapper.Map<PaySlip>(paySlipDto);
-            await CalcTotalIncomeAsync(paySlip);
+            CalcTotalIncome(paySlip);
             _repositoryManager.PaySlips.Add(paySlip);
             _repositoryManager.Save();
             return Result<bool>.Success(true);
         }
 
-        public async Task<Result<bool>> UpdatePaySlipAsync(int id, PaySlipDto paySlipDto)
+        public Result<bool> UpdatePaySlip(int id, PaySlipDto paySlipDto)
         {
             var existingPaySlip = _repositoryManager.PaySlips.GetById(id);
             if (existingPaySlip == null)
                 return Result<bool>.NotFound();
             var paySlip = _mapper.Map<PaySlip>(paySlipDto);
             _repositoryManager.PaySlips.Update(id, paySlip);
-            var result = await CalcTotalIncomeAsync(paySlip);
+            var result = CalcTotalIncome(paySlip);
             if (!result)
                 return Result<bool>.Failure("Failed to calculate total income");
             _repositoryManager.Save();
@@ -111,32 +111,34 @@ namespace Auto1040.Service
                 return Result<PaySlipDto>.Failure(fileUploadResult.ErrorMessage);
             }
 
-            // Store paySlip to db
-            var paySlip = new PaySlip
-            {
-                UserId = userId,
-                S3Key = fileName,
-                S3Url = fileUploadResult.Data,
-                TaxYear = DateTime.UtcNow.Year - 1,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            };
+            // Call the Python service 
+            var year = DateTime.Now.Year - 1; // Default to the previous year
+            var result = await _processingService.ProcessPayslipAsync(S3Service.BucketName, fileName, year);
 
-            var savedPaySlip = _repositoryManager.PaySlips.Add(paySlip);
-            _repositoryManager.Save();
-
-            // Process the file with OCR
-            var result = await _processingService.ExtractDataOcrAsync(S3Service.BucketName, paySlip.S3Key);
             if (!result.IsSuccess)
+            {
                 return Result<PaySlipDto>.Failure(result.ErrorMessage);
-            var paySlipFields = result.Data;
+            }
 
-            // Store the extracted fields to the db
-            await CalcTotalIncomeAsync(paySlipFields);
-            _repositoryManager.PaySlips.Update(savedPaySlip.Id, paySlipFields);
+            var (payslipData, exchangeRate) = result.Data;
+
+            // Update payslip data with exchange rate
+            payslipData.ExchangeRate = exchangeRate;
+            payslipData.TotalIncomeUSD = payslipData.TotalIncomeILS / exchangeRate;
+            payslipData.UserId = userId;
+            payslipData.S3Key = fileName;
+            payslipData.S3Url = fileUploadResult.Data;
+            payslipData.CreatedAt= DateTime.Now;
+            payslipData.UpdatedAt= DateTime.Now;
+            CalcTotalIncome(payslipData);
+
+            // Store the payslip in the database
+            var savedPaySlip = _repositoryManager.PaySlips.Add(payslipData);
             _repositoryManager.Save();
+
             return Result<PaySlipDto>.Success(_mapper.Map<PaySlipDto>(savedPaySlip));
         }
+
 
         public bool IsPaySlipOwner(int paySlipId, int authId)
         {
@@ -147,7 +149,7 @@ namespace Auto1040.Service
         }
 
 
-        private async Task<bool> CalcTotalIncomeAsync(PaySlip paySlip)
+        private bool CalcTotalIncome(PaySlip paySlip)
         {
             try
             {
@@ -155,7 +157,6 @@ namespace Auto1040.Service
                                   (paySlip.Field218_219 ?? 0) * 0.075m +
                                   (paySlip.Field248_249 ?? 0) +
                                   (paySlip.Field36 ?? 0);
-                paySlip.ExchangeRate = await GetYearlyAvgExchangeRateAsync(paySlip.TaxYear);
                 paySlip.TotalIncomeUSD = paySlip.TotalIncomeILS / paySlip.ExchangeRate;
                 return true;
             }
@@ -165,13 +166,7 @@ namespace Auto1040.Service
             }
         }
 
-        private async Task<decimal> GetYearlyAvgExchangeRateAsync(int year)
-        {
-            var response = await _processingService.GetExchangeRateAsync(year);
-            if (!response.IsSuccess)
-                throw new Exception($"Failed to get exchange rate from API: {response.ErrorMessage}");
-            return response.Data;
-        }
+        
 
 
 
