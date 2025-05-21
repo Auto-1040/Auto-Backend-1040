@@ -36,4 +36,34 @@ public class UserRepository : Repository<User>, IUserRepository
 
         return user?.Roles ?? Enumerable.Empty<Role>();
     }
+    public User? UpdateUserWithRoles(int id,User user)
+    {
+        var existingUser = _context.Users
+            .Include(u => u.Roles)
+            .FirstOrDefault(u => u.Id == id);
+        if (existingUser == null)
+            return null;
+
+        // Update user properties
+        existingUser.UserName = user.UserName ?? existingUser.UserName;
+        existingUser.Email = user.Email ?? existingUser.Email;
+        existingUser.HashedPassword = user.HashedPassword ?? existingUser.HashedPassword;
+        existingUser.UpdatedAt = DateTime.UtcNow;
+
+        // Update roles
+        existingUser.Roles.Clear();
+        if (user.Roles != null)
+        {
+            foreach (var role in user.Roles)
+            {
+                var existingRole = _context.Roles.Find(role.Id);
+                if (existingRole != null)
+                {
+                    existingUser.Roles.Add(existingRole);
+                }
+            }
+        }
+        return existingUser;
+    }
+    
 }

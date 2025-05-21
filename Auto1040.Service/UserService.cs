@@ -99,7 +99,7 @@ namespace Auto1040.Service
                 }
             }
 
-            var result = _repositoryManager.Users.Update(id, user);
+            var result = _repositoryManager.Users.UpdateUserWithRoles(id, user);
             if (result == null)
                 return Result<bool>.Failure("Failed to update user");
 

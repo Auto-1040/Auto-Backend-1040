@@ -12,7 +12,10 @@ namespace Auto1040.Core.Repositories
         IEnumerable<Role> GetUserRoles(int userId);
         IEnumerable<User> GetAllUsersWithRoles();
 
-        User GetUserWithRoles(string usernameOrEmail);
+        User? GetUserWithRoles(string usernameOrEmail);
+
+        User? UpdateUserWithRoles(int id, User user);
+
 
 
     }
