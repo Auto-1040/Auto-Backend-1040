@@ -32,6 +32,7 @@ namespace Auto1040.Api.Extensions
             services.AddScoped<IOutputFormService, OutputFormService>();
             services.AddScoped<IS3Service, S3Service>();
             services.AddScoped<IProcessingService, ProcessingService>();
+            services.AddScoped<IEmailService, EmailService>();
 
             // Register HttpClient
             services.AddHttpClient();

@@ -4,7 +4,6 @@ using Auto1040.Core.Repositories;
 using Auto1040.Core.Services;
 using AutoMapper;
 using System.Text.Json;
-using ThirdParty.Json.LitJson;
 
 namespace Auto1040.Service
 {
