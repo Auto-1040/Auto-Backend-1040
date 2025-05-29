@@ -139,7 +139,7 @@ namespace Auto1040.Service
                 }
                 catch (Exception retryEx)
                 {
-                    throw;
+                    result = Result<(PaySlip payslipData, decimal exchangeRate)>.BadRequest(retryEx.Message);
                 }
             }
 
