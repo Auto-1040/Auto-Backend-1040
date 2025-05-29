@@ -3,6 +3,7 @@ using Auto1040.Core.DTOs;
 using Auto1040.Core.Entities;
 using Auto1040.Core.Repositories;
 using Auto1040.Core.Services;
+using Auto1040.Core.Shared;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
@@ -18,14 +19,16 @@ namespace Auto1040.Service
         private readonly IS3Service _s3Service;
         private readonly IProcessingService _processingService;
         private readonly IUserService _userService;
+        private readonly IEmailService _emailService;
 
-        public PaySlipService(IRepositoryManager repositoryManager, IMapper mapper, IS3Service s3Service, IProcessingService processingService, IUserService userService)
+        public PaySlipService(IRepositoryManager repositoryManager, IMapper mapper, IEmailService emailService, IS3Service s3Service, IProcessingService processingService, IUserService userService)
         {
             _repositoryManager = repositoryManager;
             _mapper = mapper;
             _s3Service = s3Service;
             _processingService = processingService;
             _userService = userService;
+            _emailService = emailService;
         }
 
 
@@ -103,20 +106,46 @@ namespace Auto1040.Service
 
         public async Task<Result<PaySlipDto>> ProcessPaySlipFileAsync(IFormFile file, int userId)
         {
+            var user = _repositoryManager.Users.GetById(userId);
+
+            if (user == null)
+            {
+                return Result<PaySlipDto>.NotFound("User not found");
+
+            }
+
             // Upload the file to S3
             var fileName = Guid.NewGuid().ToString() + ".pdf"; // Generate a unique file name
             var fileUploadResult = await _s3Service.UploadFileAsync(fileName, file.OpenReadStream());
             if (!fileUploadResult.IsSuccess)
             {
+                _ = Task.Run(() => SendFailureEmailAsync(user.Email, user.UserName));
                 return Result<PaySlipDto>.Failure(fileUploadResult.ErrorMessage);
             }
 
             // Call the Python service 
             var year = DateTime.Now.Year - 1; // Default to the previous year
-            var result = await _processingService.ProcessPayslipAsync(S3Service.BucketName, fileName, year);
+            Result<(PaySlip payslipData, decimal exchangeRate)> result;
+            try
+            {
+                 result = await _processingService.ProcessPayslipAsync(S3Service.BucketName, fileName, year);
+            }
+            catch (HttpRequestException ex) when ((int?)((ex as dynamic)?.StatusCode) == 512)
+            {
+                //retry
+                try
+                {
+                    result = await _processingService.ProcessPayslipAsync(S3Service.BucketName, fileName, year);
+                }
+                catch (Exception retryEx)
+                {
+                    throw;
+                }
+            }
 
             if (!result.IsSuccess)
             {
+                _ = Task.Run(() => SendFailureEmailAsync(user.Email, user.UserName));
                 return Result<PaySlipDto>.Failure(result.ErrorMessage);
             }
 
@@ -128,14 +157,15 @@ namespace Auto1040.Service
             payslipData.UserId = userId;
             payslipData.S3Key = fileName;
             payslipData.S3Url = fileUploadResult.Data;
-            payslipData.CreatedAt= DateTime.Now;
-            payslipData.UpdatedAt= DateTime.Now;
+            payslipData.CreatedAt = DateTime.Now;
+            payslipData.UpdatedAt = DateTime.Now;
             CalcTotalIncome(payslipData);
 
             // Store the payslip in the database
             var savedPaySlip = _repositoryManager.PaySlips.Add(payslipData);
             _repositoryManager.Save();
 
+            _ = Task.Run(() => SendSuccessEmailAsync(user.Email, user.UserName));
             return Result<PaySlipDto>.Success(_mapper.Map<PaySlipDto>(savedPaySlip));
         }
 
@@ -166,7 +196,55 @@ namespace Auto1040.Service
             }
         }
 
-        
+        private async Task SendSuccessEmailAsync(string userEmail, string userName)
+        {
+            var subject = "Your Form 106 Was Successfully Processed";
+            var body = $@"
+                        Dear {userName},
+
+                        We’re happy to inform you that your Form 106 has been successfully uploaded and analyzed by our system.
+
+                        The extracted data has been automatically added to your draft Form 1040, which you can now download in your personal dashboard.
+
+                        If you have any questions or would like to consult with a tax advisor, feel free to reach out — we’re here to help.
+
+                        Best regards,
+                        The EZ1040 Team";
+
+            var request = new EmailRequest
+            {
+                To = userEmail,
+                Subject = subject,
+                Body = body
+            };
+
+            await _emailService.SendEmailAsync(request);
+        }
+
+        private async Task SendFailureEmailAsync(string userEmail, string userName)
+        {
+            var subject = "Issue Processing Your Form 106";
+            var body = $@"
+                    Dear {userName},
+
+                    Unfortunately, we were unable to complete the upload or analysis of your Form 106.
+
+                    This may be due to a low-quality file or an unsupported format. Please double-check the file and try uploading it again.
+                    If the issue persists, don’t hesitate to contact us for assistance.
+
+                    Best regards,
+                    The EZ1040 Team";
+
+            var request = new EmailRequest
+            {
+                To = userEmail,
+                Subject = subject,
+                Body = body
+            };
+
+            await _emailService.SendEmailAsync(request);
+        }
+
 
 
 

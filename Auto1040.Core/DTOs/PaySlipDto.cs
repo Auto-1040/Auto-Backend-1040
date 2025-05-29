@@ -6,5 +6,7 @@
         public int? UserId { get; set; }
         public int TaxYear { get; set; }
         public string S3Key { get; set; }
+        public DateTime CreatedAt { get; set; }
+
     }
 }
